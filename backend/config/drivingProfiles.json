@@ -1,0 +1,13 @@
+{
+    "Profile1": {
+      "speed": 100,
+      "acceleration": 50,
+      "positions": [0, 100, 200]
+    },
+    "Profile2": {
+      "speed": 80,
+      "acceleration": 40,
+      "positions": [0, 80, 160]
+    }
+  }
+  
