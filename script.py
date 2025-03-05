@@ -4,13 +4,17 @@ import os
 def list_files(directory, output_file):
     with open(output_file, "w", encoding="utf-8") as f:
         for root, dirs, files in os.walk(directory):
-            if "node_modules" in root.split(os.sep):
+            if "node_modules" in root.split(os.sep) or ".git" in root.split(os.sep):
                 continue
 
             rel_path = os.path.relpath(root, directory)
             f.write(f"[{rel_path if rel_path != '.' else 'root'}]\n")
             for file in files:
-                if file == "package-lock.json":
+                if file in {
+                    "package-lock.json",
+                    "java_jni_digital_input",
+                    ".gitignore",
+                }:
                     continue
                 file_path = os.path.join(root, file)
                 try:

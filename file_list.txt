@@ -3,6 +3,35 @@
   Inhalt:
 
 
+- BSUSBExample.java
+  Inhalt:
+import DelibJava.DelibJNI;
+
+public class BSUSBExample {
+    public static void main(String[] args) {
+        // 1) Modul öffnen (BS-USB mit 16 DI & 16 DO)
+        long handle = DelibJNI.DapiOpenModule(DelibJNI.BS_USB_16, 0);
+        if (handle == 0) {
+            System.err.println("Modul konnte nicht geöffnet werden!");
+            return;
+        }
+        System.out.println("BS-USB Modul geöffnet (Handle = " + handle + ").");
+
+        // 2) Digitalen Ausgang 1 einschalten (auf HIGH setzen)
+        DelibJNI.DapiDOSet1(handle, 1, 1);  // setzt Ausgang Kanal 1 auf 1 (AN)
+        System.out.println("Ausgang 1 wurde auf AN gesetzt.");
+
+        // 3) Digitalen Eingang 1 auslesen
+        long value = DelibJNI.DapiDIGet1(handle, 1);
+        System.out.println("Eingang 1 Zustand: " + (value == 1 ? "AN" : "AUS"));
+
+        // 4) Modul schließen
+        DelibJNI.DapiCloseModule(handle);
+        System.out.println("BS-USB Modul geschlossen.");
+    }
+}
+
+
 - script.py
   Inhalt:
 import os
@@ -11,13 +40,17 @@ import os
 def list_files(directory, output_file):
     with open(output_file, "w", encoding="utf-8") as f:
         for root, dirs, files in os.walk(directory):
-            if "node_modules" in root.split(os.sep):
+            if "node_modules" in root.split(os.sep) or ".git" in root.split(os.sep):
                 continue
 
             rel_path = os.path.relpath(root, directory)
             f.write(f"[{rel_path if rel_path != '.' else 'root'}]\n")
             for file in files:
-                if file == "package-lock.json":
+                if file in {
+                    "package-lock.json",
+                    "java_jni_digital_input",
+                    ".gitignore",
+                }:
                     continue
                 file_path = os.path.join(root, file)
                 try:
@@ -3143,132 +3176,199 @@ export default EmergencyStop;
 
 - PinLayout.js
   Inhalt:
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const digitalInputsData = [
-  { id: 1, binär: "Bit 0", tTeach: "Bit 0", takt: "Takt" },
-  { id: 2, binär: "Bit 1", tTeach: "Bit 1", takt: "Richtung" },
-  { id: 3, binär: "Bit 2", tTeach: "Bit 2", takt: "-" },
-  { id: 4, binär: "Bit 3", tTeach: "Tippen links", takt: "-" },
-  { id: 5, binär: "Bit 4", tTeach: "Tippen rechts", takt: "-" },
-  { id: 6, binär: "Start", tTeach: "Start/Teach", takt: "-" },
-  { id: 7, binär: "Freigabe", tTeach: "Freigabe", takt: "Freigabe" },
-  { id: 8, binär: "Endlagenschalter positiv", tTeach: "Endlagenschalter positiv", takt: "Endlagenschalter positiv" },
-  { id: 9, binär: "Endlagenschalter negativ", tTeach: "Endlagenschalter negativ", takt: "Endlagenschalter negativ" },
-  { id: 10, binär: "Stopp/Reset", tTeach: "Stopp/Reset", takt: "Reset" }
+// Outputs-Daten
+const outputsData = [
+    // Dryve D1 Outputs (0-7)
+    { id: 0, label: "DI1 - Referenzfahrt", group: "dryve" },
+    { id: 1, label: "DI4 - Tippen links", group: "dryve" },
+    { id: 2, label: "DI5 - Tippen rechts", group: "dryve" },
+    { id: 3, label: "DI6 - Start/Teach", group: "dryve" },
+    { id: 4, label: "DI7 - Freigabe", group: "dryve" },
+    { id: 5, label: "DI8 - Endlagenschalter positiv", group: "dryve" },
+    { id: 6, label: "DI9 - Endlagenschalter negativ", group: "dryve" },
+    { id: 7, label: "DI10 - Stopp/Reset", group: "dryve" },
+    // Schrauber Outputs (8-12)
+    { id: 8, label: "Programm Auswahl 1", group: "schrauber" },
+    { id: 9, label: "Programm Auswahl 2", group: "schrauber" },
+    { id: 10, label: "STOPMOTOR", group: "schrauber" },
+    { id: 11, label: "START", group: "schrauber" },
+    { id: 12, label: "IN ANG", group: "schrauber" },
+    { id: 13, label: "IN RST", group: "schrauber" },
+    // Druckluft Outputs (14-15)
+    { id: 14, label: "Greifer", group: "druckluft" },
+    { id: 15, label: "Magnetheber an", group: "druckluft" },
 ];
 
-const schrauberOutputsData = [
-  { id: 1, label: "Programm Auswahl 1" },
-  { id: 2, label: "Programm Auswahl 2" },
-  { id: 3, label: "STOPMOTOR" },
-  { id: 4, label: "START" },
-  { id: 5, label: "IN ANG" },
-  { id: 6, label: "IN RST" }
+// Inputs-Daten
+const inputsData = [
+    // Dryve D1 Inputs (0-2)
+    { id: 0, label: "DI1 - Referenzfahrt", group: "dryve" },
+    { id: 1, label: "DI4 - Tippen links", group: "dryve" },
+    { id: 2, label: "DI5 - Tippen rechts", group: "dryve" },
+    // Schrauber Inputs (3-5)
+    { id: 3, label: "37 - STOP", group: "schrauber" },
+    { id: 4, label: "39 - END PR", group: "schrauber" },
+    { id: 5, label: "42 - MOTOR ON", group: "schrauber" },
+    // Druckluft Inputs (6-10)
+    { id: 6, label: "Greifer Endschalter positiv", group: "druckluft" },
+    { id: 7, label: "Greifer Endschalter negativ", group: "druckluft" },
+    { id: 8, label: "Magnetheber Endschalter positiv", group: "druckluft" },
+    { id: 9, label: "Magnetheber Endschalter negativ", group: "druckluft" },
+    { id: 10, label: "Näherungsschalter Greifer", group: "druckluft" },
+    // Unbeschriftete Inputs (11-15)
+    { id: 11, label: "-", group: "none" },
+    { id: 12, label: "-", group: "none" },
+    { id: 13, label: "-", group: "none" },
+    { id: 14, label: "-", group: "none" },
+    { id: 15, label: "-", group: "none" }
 ];
 
 const PinLayout = () => {
-  // Zustände für digitale Eingänge (10 Pins)
-  const [digitalInputs, setDigitalInputs] = useState(Array(10).fill(false));
-  // Zustände für Schrauber-Ausgänge (6 Pins)
-  const [schrauberOutputs, setSchrauberOutputs] = useState(Array(6).fill(false));
+    const [inputs, setInputs] = useState(Array(16).fill(false));
+    const [outputs, setOutputs] = useState(Array(16).fill(false));
 
-  const toggleDigitalInput = (index) => {
-    const newStates = [...digitalInputs];
-    newStates[index] = !newStates[index];
-    setDigitalInputs(newStates);
-  };
+    // WebSocket für Echtzeit-Updates der Inputs
+    useEffect(() => {
+        const ws = new WebSocket('ws://localhost:3000');
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'inputStatus') {
+                setInputs(data.states);
+            }
+        };
+        return () => ws.close();
+    }, []);
 
-  const toggleSchrauberOutput = (index) => {
-    const newStates = [...schrauberOutputs];
-    newStates[index] = !newStates[index];
-    setSchrauberOutputs(newStates);
-  };
+    // Funktion zum Umschalten der Outputs
+    const toggleOutput = async (index) => {
+        const newState = !outputs[index];
+        const newOutputs = [...outputs];
+        newOutputs[index] = newState;
+        setOutputs(newOutputs);
 
-  const toggleAll = () => {
-    setDigitalInputs(digitalInputs.map(state => !state));
-    setSchrauberOutputs(schrauberOutputs.map(state => !state));
-  };
+        try {
+            await axios.post('/api/motor/set-output', { pin: index, state: newState });
+        } catch (error) {
+            console.error('Fehler beim Setzen des Outputs:', error);
+        }
+    };
 
-  const getIndicatorStyle = (state) => ({
-    width: '20px',
-    height: '20px',
-    borderRadius: '50%',
-    backgroundColor: state ? 'green' : 'red',
-    display: 'inline-block',
-    marginRight: '10px'
-  });
+    // Funktion zum Umschalten aller Outputs (für Testzwecke)
+    const toggleAllOutputs = () => {
+        setOutputs(outputs.map(state => !state));
+    };
 
-  return (
-    <div>
-      <h2>Pin-Layout</h2>
-      <h3>Dryve D1 Digitale Eingänge (X2)</h3>
-      <table border="1" cellPadding="5">
-        <thead>
-          <tr>
-            <th>Pin Nr.</th>
-            <th>Binär</th>
-            <th>Tipp/Teach</th>
-            <th>Takt/Richtung</th>
-            <th>Status</th>
-            <th>Toggle</th>
-          </tr>
-        </thead>
-        <tbody>
-          {digitalInputsData.map((pin, index) => (
-            <tr key={pin.id}>
-              <td>{pin.id}</td>
-              <td>{pin.binär}</td>
-              <td>{pin.tTeach}</td>
-              <td>{pin.takt}</td>
-              <td>
-                <span style={getIndicatorStyle(digitalInputs[index])}></span>
-                {digitalInputs[index] ? 'An' : 'Aus'}
-              </td>
-              <td>
-                <button onClick={() => toggleDigitalInput(index)}>Toggle</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    // Stil für Statusanzeige (grün = An, rot = Aus)
+    const getIndicatorStyle = (state) => ({
+        width: '20px',
+        height: '20px',
+        borderRadius: '50%',
+        backgroundColor: state ? 'green' : 'red',
+        display: 'inline-block',
+        marginRight: '10px'
+    });
 
-      <h3>Schrauber Digitale Ausgänge</h3>
-      <table border="1" cellPadding="5">
-        <thead>
-          <tr>
-            <th>Output Nr.</th>
-            <th>Bezeichnung</th>
-            <th>Status</th>
-            <th>Toggle</th>
-          </tr>
-        </thead>
-        <tbody>
-          {schrauberOutputsData.map((output, index) => (
-            <tr key={output.id}>
-              <td>{index + 10}</td>
-              <td>{output.label}</td>
-              <td>
-                <span style={getIndicatorStyle(schrauberOutputs[index])}></span>
-                {schrauberOutputs[index] ? 'An' : 'Aus'}
-              </td>
-              <td>
-                <button onClick={() => toggleSchrauberOutput(index)}>Toggle</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    // Farbkodierung nach Gruppe
+    const getRowStyle = (group) => {
+        switch (group) {
+            case "dryve":
+                return { backgroundColor: '#cce5ff' }; // Hellblau für Dryve D1
+            case "schrauber":
+                return { backgroundColor: '#ccffcc' }; // Hellgrün für Schrauber
+            case "druckluft":
+                return { backgroundColor: '#ffe6cc' }; // Hellorange für Druckluft
+            default:
+                return { backgroundColor: '#ffffff' }; // Weiß für unbeschriftet
+        }
+    };
 
-      <button onClick={toggleAll} style={{ marginTop: '20px', padding: '10px 20px' }}>
-        Test: Alle umschalten
-      </button>
-    </div>
-  );
+    // Flexbox-Styling für nebeneinanderliegende Tabellen
+    const containerStyle = {
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '20px',
+        marginTop: '20px'
+    };
+
+    const tableWrapperStyle = {
+        flex: '1',
+        minWidth: '0' // Verhindert Überlauf
+    };
+
+    return (
+        <div>
+            <h2>Pin-Layout</h2>
+            <div style={containerStyle}>
+
+                {/* Outputs Tabelle */}
+                <div style={tableWrapperStyle}>
+                    <h3>Ausgänge (Outputs)</h3>
+                    <table border="1" cellPadding="5" style={{ width: '100%' }}>
+                        <thead>
+                            <tr>
+                                <th>Pin Nr.</th>
+                                <th>Funktion</th>
+                                <th>Status</th>
+                                <th>Toggle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {outputsData.map((output) => (
+                                <tr key={output.id} style={getRowStyle(output.group)}>
+                                    <td>{output.id}</td>
+                                    <td>{output.label}</td>
+                                    <td>
+                                        <span style={getIndicatorStyle(outputs[output.id])}></span>
+                                        {outputs[output.id] ? 'An' : 'Aus'}
+                                    </td>
+                                    <td>
+                                        <button onClick={() => toggleOutput(output.id)}>Toggle</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Inputs Tabelle */}
+                <div style={tableWrapperStyle}>
+                    <h3>Eingänge (Inputs)</h3>
+                    <table border="1" cellPadding="5" style={{ width: '100%' }}>
+                        <thead>
+                            <tr>
+                                <th>Pin Nr.</th>
+                                <th>Funktion</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {inputsData.map((input) => (
+                                <tr key={input.id} style={getRowStyle(input.group)}>
+                                    <td>{input.id}</td>
+                                    <td>{input.label}</td>
+                                    <td>
+                                        <span style={getIndicatorStyle(inputs[input.id])}></span>
+                                        {inputs[input.id] ? 'An' : 'Aus'}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Test-Button zum Umschalten aller Outputs */}
+            <button onClick={toggleAllOutputs} style={{ marginTop: '20px', padding: '10px 20px' }}>
+                Test: Alle Outputs umschalten
+            </button>
+        </div>
+    );
 };
 
 export default PinLayout;
-
 
 - StatusDisplay.js
   Inhalt:
@@ -3452,5 +3552,141 @@ router.post('/emergency-stop', (req, res) => {
 
 module.exports = router;
 
+
+
+[java_jni_digital_input]
+
+[java_jni_digital_input/bin]
+- java_jni_usb_optoin_16_relais_16_digital_input_sample.class
+  Inhalt:
+   4 !  5java_jni_usb_optoin_16_relais_16_digital_input_sample  java/lang/Object console Ljava/io/BufferedReader; <init> ()V Code  java/lang/Error 
+Unresolved compilation problems: 
+	The declared package "java_jni_digital_input.src" does not match the expected package ""
+	The method DapiSpecialCommand(int, int, int, int, int) in the type DelibJNI is not applicable for the arguments (long, int, int, int, int)
+	The method DapiDIGet1(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiDIGet1(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiDIGet1(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiDIGet1(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiDIGet8(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiDIGet8(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiDIGet32(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiDIGetFF32(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiCloseModule(int) in the type DelibJNI is not applicable for the arguments (long)
+
+ 
+    (Ljava/lang/String;)V LineNumberTable LocalVariableTable this 7Ljava_jni_usb_optoin_16_relais_16_digital_input_sample; IsError 
+Exceptions  java/lang/Exception  !Unresolved compilation problem: 
+ main ([Ljava/lang/String;)V CUnresolved compilation problems: 
+	The method DapiSpecialCommand(int, int, int, int, int) in the type DelibJNI is not applicable for the arguments (long, int, int, int, int)
+	The method DapiDIGet1(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiDIGet1(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiDIGet1(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiDIGet1(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiDIGet8(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiDIGet8(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiDIGet32(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiDIGetFF32(int, int) in the type DelibJNI is not applicable for the arguments (long, int)
+	The method DapiCloseModule(int) in the type DelibJNI is not applicable for the arguments (long)
+ 
+SourceFile :java_jni_usb_optoin_16_relais_16_digital_input_sample.java !      	          	   4     
+ 
+Y                    
+     	          	   *      
+ 
+Y            #       	          	   *     
+ 
+Y            Z             
+
+
+[java_jni_digital_input/bin/DelibJava]
+- DelibJNI.class
+  Inhalt:
+   4  DelibJava/DelibJNI  java/lang/Object USB_Interface8 I 
+ConstantValue    
+USB_CAN_STICK    USB_LOGI_500    
+USB_SER_DEBUG    RO_SER    USB_BITP_200    RO_USB1    RO_USB RO_ETH    USB_MINI_STICK   	 USB_LOGI_18   
+ RO_CAN    USB_SPI_MON    USB_WATCHDOG   
+ USB_OPTOIN_8    USB_RELAIS_8 USB_OPTOIN_8_RELAIS_8    USB_OPTOIN_16_RELAIS_16    
+USB_OPTOIN_32 
+USB_RELAIS_32 USB_OPTOIN_32_RELAIS_32    
+USB_OPTOIN_64 
+USB_RELAIS_64 BS_USB_8 	BS_USB_16 	BS_USB_32 
+USB_TTL_32    
+USB_TTL_64 
+RO_ETH_INTERN    BS_SER    BS_CAN    BS_ETH    NET_ETH    RO_CAN2    RO_USB2    	RO_ETH_LC    ETH_RELAIS_8    ETH_OPTOIN_8 ETH_O4_R4_ADDA    ETHERNET_MODULE    
+ETH_TTL_64    NET_USB2    
+NET_ETH_LC     NET_USB1   ! NET_SER   " "DAPI_SPECIAL_CMD_GET_MODULE_CONFIG DAPI_SPECIAL_CMD_TIMEOUT DAPI_SPECIAL_CMD_DI DAPI_SPECIAL_CMD_SET_DIR_DX_1 DAPI_SPECIAL_CMD_SET_DIR_DX_8 #DAPI_SPECIAL_CMD_GET_MODULE_VERSION DAPI_SPECIAL_CMD_DA DAPI_SPECIAL_CMD_WATCHDOG DAPI_SPECIAL_CMD_COUNTER DAPI_SPECIAL_CMD_AD DAPI_SPECIAL_CMD_CNT48 DAPI_SPECIAL_CMD_SOFTWARE_FIFO DAPI_SPECIAL_CMD_MODULE_REBOOT DAPI_SPECIAL_CMD_MODULE_RESCAN ,DAPI_SPECIAL_CMD_RESTART_CHECK_MODULE_CONFIG DAPI_SPECIAL_CMD_PWM %DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_DI (DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_DI_FF -DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_DI_COUNTER %DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_DO %DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_DX %DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_AD %DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_DA 'DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_TEMP *DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_STEPPER (DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_CNT48 ,DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_PULSE_GEN *DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_PWM_OUT 0DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_HW_INTERFACE1 .DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_SW_FEATURE1 +DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_HW_GROUP +DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_SW_CLASS ,DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_MODULE_ID %DAPI_SPECIAL_GET_MODULE_PAR_VERSION_0     %DAPI_SPECIAL_GET_MODULE_PAR_VERSION_1 %DAPI_SPECIAL_GET_MODULE_PAR_VERSION_2 %DAPI_SPECIAL_GET_MODULE_PAR_VERSION_3 "DAPI_SPECIAL_TIMEOUT_SET_VALUE_SEC DAPI_SPECIAL_TIMEOUT_ACTIVATE DAPI_SPECIAL_TIMEOUT_DEACTIVATE DAPI_SPECIAL_TIMEOUT_GET_STATUS #DAPI_SPECIAL_DI_FF_FILTER_VALUE_SET #DAPI_SPECIAL_DI_FF_FILTER_VALUE_GET  DAPI_SPECIAL_AD_READ_MULTIPLE_AD DAPI_SPECIAL_AD_FIFO_ACTIVATE DAPI_SPECIAL_AD_FIFO_DEACTIVATE DAPI_SPECIAL_AD_FIFO_GET_STATUS $DAPI_SPECIAL_AD_FIFO_SET_INTERVAL_MS  DAPI_SPECIAL_AD_FIFO_SET_CHANNEL DAPI_SPECIAL_AD_FIFO_INIT DAPI_SPECIAL_AD_FILTER_SET #DAPI_SPECIAL_DA_PAR_DA_LOAD_DEFAULT )DAPI_SPECIAL_DA_PAR_DA_SAVE_EEPROM_CONFIG )DAPI_SPECIAL_DA_PAR_DA_LOAD_EEPROM_CONFIG &DAPI_SPECIAL_WATCHDOG_SET_TIMEOUT_MSEC &DAPI_SPECIAL_WATCHDOG_GET_TIMEOUT_MSEC  DAPI_SPECIAL_WATCHDOG_GET_STATUS )DAPI_SPECIAL_WATCHDOG_GET_WD_COUNTER_MSEC 5DAPI_SPECIAL_WATCHDOG_GET_TIMEOUT_RELAIS_COUNTER_MSEC 3DAPI_SPECIAL_WATCHDOG_SET_TIMEOUT_REL1_COUNTER_MSEC 3DAPI_SPECIAL_WATCHDOG_SET_TIMEOUT_REL2_COUNTER_MSEC DAPI_SPECIAL_COUNTER_LATCH_ALL )DAPI_SPECIAL_COUNTER_LATCH_ALL_WITH_RESET DAPI_SPECIAL_CNT48_RESET_SINGLE DAPI_SPECIAL_CNT48_RESET_GROUP8 DAPI_SPECIAL_CNT48_LATCH_GROUP8 DAPI_SPECIAL_CNT48_DI_GET1 #DAPI_SPECIAL_SOFTWARE_FIFO_ACTIVATE %DAPI_SPECIAL_SOFTWARE_FIFO_DEACTIVATE %DAPI_SPECIAL_SOFTWARE_FIFO_GET_STATUS !DAPI_SPECIAL_PWM_FREQ_LOAD_DFAULT !DAPI_SPECIAL_PWM_FREQ_SAVE_EEPROM !DAPI_SPECIAL_PWM_FREQ_LOAD_EEPROM DAPI_SPECIAL_PWM_FREQ_SET DAPI_SPECIAL_AD_CH0_CH15 DAPI_SPECIAL_AD_CH16_CH31 DAPI_SPECIAL_AD_CH32_CH47 DAPI_SPECIAL_AD_CH48_CH63 %DAPI_SCANMODULE_GET_MODULES_AVAILABLE +DAPI_SW_CLASS_TYPE_OF_MODULE_IDENTIFICATION DAPI_SW_CLASS_DI_DO_DX_CHANNELS DAPI_SW_CLASS_AD_DA_CHANNELS DAPI_HW_GROUP_RO DAPI_HW_GROUP_LOGICANALYZER DAPI_HW_GROUP_DI_DO_AD_DA DAPI_HW_GROUP_USB DAPI_HW_GROUP_BS DAPI_HW_GROUP_NET DAPI_HW_GROUP_ETH   @ )DAPI_SW_FEATURE_BIT_SUPPORTED_BY_FIRMWARE !DAPI_SW_FEATURE_BIT_SOFTWARE_FIFO -DAPI_SW_FEATURE_BIT_CFG_DO_CMD_SET_CLR_BIT_32 DAPI_SW_FEATURE_BIT_EEPROM_RN23  DAPI_SW_FEATURE_BIT_EEPROM_E2_2K !DAPI_SW_FEATURE_BIT_EEPROM_E2_32K %DAPI_SW_FEATURE_BIT_EEPROM_FS_SUPPORT    DAPI_SW_FEATURE_BIT_DX_1_MODE ,DAPI_SW_FEATURE_BIT_AUTO_OUTPUTS_OFF_TIMEOUT    ,DAPI_SW_FEATURE_BIT_SUPP_INDIVIDUAL_CH_NAMES    'DAPI_SW_FEATURE_BIT_DEV_IO_REG_ERR_SUPP     $DAPI_SW_FEATURE_BIT_SUPP_SYSTEM_INFO  @   DAPI_SW_FEATURE_BIT_CFG_WATCHDOG    DAPI_SW_FEATURE_BIT_CFG_DI     DAPI_SW_FEATURE_BIT_CFG_DI_CNT@    $DAPI_SW_FEATURE_BIT_CFG_DI_CNT_LATCH    DAPI_SW_FEATURE_BIT_CFG_DI_FF    DAPI_SW_FEATURE_BIT_CFG_DO    %DAPI_SW_FEATURE_BIT_CFG_DO_WITH_TIMER    DAPI_SW_FEATURE_BIT_CFG_PWM_OUT    DAPI_SW_FEATURE_BIT_CFG_DX    DAPI_SW_FEATURE_BIT_CFG_DA    DAPI_SW_FEATURE_BIT_CFG_AD     !DAPI_SW_FEATURE_BIT_CFG_CNT_OUT32 @    DAPI_SW_FEATURE_BIT_CFG_CNT_IN48    DAPI_SW_FEATURE_BIT_CFG_TEMP    DAPI_SW_FEATURE_BIT_CFG_STEPPER    +DAPI_HW_INTERFACE_BIT_SUPPORTED_BY_FIRMWARE DAPI_HW_INTERFACE_BIT_CFG_ETH DAPI_HW_INTERFACE_BIT_CFG_CAN DAPI_HW_INTERFACE_BIT_CFG_RS232 %DAPI_HW_INTERFACE_BIT_CFG_RS232_RS485 DAPI_HW_INTERFACE_BIT_CFG_USB1 DAPI_HW_INTERFACE_BIT_CFG_USB2 !DAPI_HW_INTERFACE_PRODUCT_ID_MASK    DAPI_HW_INTERFACE_PRODUCT_ID_RO  DAPI_HW_INTERFACE_PRODUCT_ID_RO2 DAPI_HW_INTERFACE_PRODUCT_ID_BS     DAPI_HW_INTERFACE_PRODUCT_ID_NET #DAPI_HW_INTERFACE_PRODUCT_ID_NET_IP    *DAPI_TCP_FEATURE_BIT_SUPPORTED_BY_FIRMWARE DAPI_TCP_FEATURE_BIT_SUPP_RTC DAPI_CNT_MODE_READ DAPI_CNT_MODE_READ_WITH_RESET DAPI_CNT_MODE_READ_LATCHED DAPI_ADDA_MODE_UNIPOL_10V DAPI_ADDA_MODE_UNIPOL_5V DAPI_ADDA_MODE_UNIPOL_2V5 DAPI_ADDA_MODE_BIPOL_10V DAPI_ADDA_MODE_BIPOL_5V   A DAPI_ADDA_MODE_BIPOL_2V5   B DAPI_ADDA_MODE_0_20mA DAPI_ADDA_MODE_4_20mA    DAPI_ADDA_MODE_0_24mA    DAPI_ADDA_MODE_0_50mA    DAPI_ADDA_MODE_BI_CAL_MODE    DAPI_ADDA_MODE_0_20mA_TESTMODE    !DAPI_ADDA_MODE_BIPOL_10V_TESTMODE    DAPI_ADDA_MODE_DA_DISABLE    DAPI_ADDA_MODE_DA_ENABLE    &DAPI_ADDA_MODE_PREVENT_DAPI_MODE_ERROR    DAPI_ADDA_UNIT_ILLEGAL DAPI_ADDA_UNIT_VOLT DAPI_ADDA_UNIT_MA DAPI_STEPPER_ERR_NONE DAPI_STEPPER_ERR_PARAMETER DAPI_STEPPER_ERR_MOTOR_MOVE DAPI_STEPPER_ERR_DISABLE_MOVE !DAPI_STEPPER_ERR_DEVICE_NOT_FOUND DAPI_STEPPER_RETURN_0_BYTES DAPI_STEPPER_RETURN_1_BYTES DAPI_STEPPER_RETURN_2_BYTES DAPI_STEPPER_RETURN_4_BYTES    (DAPI_STEPPER_CMD_SET_MOTORCHARACTERISTIC (DAPI_STEPPER_CMD_GET_MOTORCHARACTERISTIC   DAPI_STEPPER_CMD_SET_POSITION DAPI_STEPPER_CMD_GO_POSITION DAPI_STEPPER_CMD_GET_POSITION   DAPI_STEPPER_CMD_SET_FREQUENCY 'DAPI_STEPPER_CMD_SET_FREQUENCY_DIRECTLY DAPI_STEPPER_CMD_GET_FREQUENCY   DAPI_STEPPER_CMD_FULLSTOP DAPI_STEPPER_CMD_STOP DAPI_STEPPER_CMD_GO_REFSWITCH DAPI_STEPPER_CMD_DISABLE 1DAPI_STEPPER_CMD_MOTORCHARACTERISTIC_LOAD_DEFAULT 0DAPI_STEPPER_CMD_MOTORCHARACTERISTIC_EEPROM_SAVE 0DAPI_STEPPER_CMD_MOTORCHARACTERISTIC_EEPROM_LOAD DAPI_STEPPER_CMD_GET_CPU_TEMP@   )DAPI_STEPPER_CMD_GET_MOTOR_SUPPLY_VOLTAGE   %DAPI_STEPPER_CMD_GO_POSITION_RELATIVE DAPI_STEPPER_CMD_EEPROM_ERASE DAPI_STEPPER_CMD_SET_VECTORMODE #DAPI_STEPPER_MOTORCHAR_PAR_STEPMODE &DAPI_STEPPER_MOTORCHAR_PAR_GOFREQUENCY )DAPI_STEPPER_MOTORCHAR_PAR_STARTFREQUENCY (DAPI_STEPPER_MOTORCHAR_PAR_STOPFREQUENCY 'DAPI_STEPPER_MOTORCHAR_PAR_MAXFREQUENCY ,DAPI_STEPPER_MOTORCHAR_PAR_ACCELERATIONSLOPE ,DAPI_STEPPER_MOTORCHAR_PAR_DECELERATIONSLOPE 'DAPI_STEPPER_MOTORCHAR_PAR_PHASECURRENT +DAPI_STEPPER_MOTORCHAR_PAR_HOLDPHASECURRENT #DAPI_STEPPER_MOTORCHAR_PAR_HOLDTIME (DAPI_STEPPER_MOTORCHAR_PAR_STATUSLEDMODE (DAPI_STEPPER_MOTORCHAR_PAR_INVERT_ENDSW1 (DAPI_STEPPER_MOTORCHAR_PAR_INVERT_ENDSW2 (DAPI_STEPPER_MOTORCHAR_PAR_INVERT_REFSW1 (DAPI_STEPPER_MOTORCHAR_PAR_INVERT_REFSW2 +DAPI_STEPPER_MOTORCHAR_PAR_INVERT_DIRECTION -DAPI_STEPPER_MOTORCHAR_PAR_ENDSWITCH_STOPMODE ;DAPI_STEPPER_MOTORCHAR_PAR_GOREFERENCEFREQUENCY_TOENDSWITCH >DAPI_STEPPER_MOTORCHAR_PAR_GOREFERENCEFREQUENCY_AFTERENDSWITCH 8DAPI_STEPPER_MOTORCHAR_PAR_GOREFERENCEFREQUENCY_TOOFFSET "DAPI_STEPPER_GO_REFSWITCH_PAR_REF1 "DAPI_STEPPER_GO_REFSWITCH_PAR_REF2 &DAPI_STEPPER_GO_REFSWITCH_PAR_REF_LEFT 'DAPI_STEPPER_GO_REFSWITCH_PAR_REF_RIGHT -DAPI_STEPPER_GO_REFSWITCH_PAR_REF_GO_POSITIVE -DAPI_STEPPER_GO_REFSWITCH_PAR_REF_GO_NEGATIVE 'DAPI_STEPPER_GO_REFSWITCH_PAR_SET_POS_0  DAPI_STEPPER_STATUS_GET_POSITION DAPI_STEPPER_STATUS_GET_SWITCH  DAPI_STEPPER_STATUS_GET_ACTIVITY DAPI_CAN_CMD_SET_BITRATE DAPI_CAN_CMD_SET_MASK0 DAPI_CAN_CMD_SET_RX_ADDRESS DAPI_CAN_CMD_CLR_TIMESTAMP DAPI_CAN_CMD_GET_BITRATE DAPI_CAN_CMD_GET_TIMESTAMP DAPI_CAN_CMD_TEST_GEN_RX_PACK DAPI_PAR_CAN_MESSAGE_BOX_0 DAPI_PAR_CAN_MESSAGE_BOX_1 DAPI_PAR_CAN_MESSAGE_BOX_2 DAPI_PAR_CAN_MESSAGE_BOX_3 DAPI_CAN_BITRATE_10000  ' DAPI_CAN_BITRATE_20000  N  DAPI_CAN_BITRATE_50000  P DAPI_CAN_BITRATE_100000  DAPI_CAN_BITRATE_125000 H DAPI_CAN_BITRATE_250000 А DAPI_CAN_BITRATE_500000   DAPI_CAN_BITRATE_1000000 B@ DAPI_CAN_MASK_SINGLE DAPI_CAN_MASK_ALL DAPI_CNT48_FILTER_20ns DAPI_CNT48_FILTER_100ns DAPI_CNT48_FILTER_250ns DAPI_CNT48_FILTER_500ns  0  DAPI_CNT48_FILTER_1us DAPI_CNT48_FILTER_2_5us  P  DAPI_CNT48_FILTER_5us  `  DAPI_CNT48_FILTER_10us  p  DAPI_CNT48_FILTER_25us DAPI_CNT48_FILTER_50us    DAPI_CNT48_FILTER_100us    DAPI_CNT48_FILTER_250us    DAPI_CNT48_FILTER_500us    DAPI_CNT48_FILTER_1ms    DAPI_CNT48_FILTER_2_5ms    DAPI_CNT48_FILTER_5ms    !DAPI_CNT48_MODE_COUNT_RISING_EDGE $DAPI_CNT48_MODE_COUNT_RISING_EDGE_X2 $DAPI_CNT48_MODE_COUNT_RISING_EDGE_X4 DAPI_CNT48_MODE_T DAPI_CNT48_MODE_FREQUENCY DAPI_CNT48_MODE_PWM DAPI_CNT48_SUBMODE_NO_RESET "DAPI_CNT48_SUBMODE_RESET_WITH_READ 'DAPI_CNT48_SUBMODE_NO_RESET_NO_HW_RESET .DAPI_CNT48_SUBMODE_RESET_WITH_READ_NO_HW_RESET   0  DAPI_CNT48_SUBMODE_RESET_ON_CH_7   p DAPI_CNT48_SUBMODE_LATCH_COMMON *DAPI_CNT48_SUBMODE_FREQUENCY_TIME_BASE_1ms +DAPI_CNT48_SUBMODE_FREQUENCY_TIME_BASE_10ms ,DAPI_CNT48_SUBMODE_FREQUENCY_TIME_BASE_100ms +DAPI_CNT48_SUBMODE_FREQUENCY_TIME_BASE_1sec DAPI_FIFO_TYPE_READ_AD_FIFO DAPI_PWM_FREQUENCY_10HZ DAPI_PWM_FREQUENCY_100HZ DAPI_PWM_FREQUENCY_250HZ DAPI_PWM_FREQUENCY_1000HZ   d $DAPI_OPEN_MODULE_OPTION_USE_EXBUFFER !DAPI_OPEN_MODULE_OPTION_NO_RESCAN %DAPI_OPEN_MODULE_ENCRYPTION_TYPE_NONE 'DAPI_OPEN_MODULE_ENCRYPTION_TYPE_NORMAL &DAPI_OPEN_MODULE_ENCRYPTION_TYPE_ADMIN +DAPI_OPEN_MODULE_ENCRYPTION_TYPE_ADMIN_TEMP <init> ()V Code java/lang/Error Unresolved compilation problem: 
+	The declared package "java_jni_digital_input.src.DelibJava" does not match the expected package "DelibJava"
+
+ (Ljava/lang/String;)V LineNumberTable LocalVariableTable this LDelibJava/DelibJNI; DapiOpenModule (II)I !Unresolved compilation problem: 
+ DapiCloseModule (I)I DapiScanModule DapiScanAllModulesAvailable &DapiScanAllModulesAvailableListEcecute DapiGetDELIBVersion DapiPing 
+DapiWriteByte (III)V 
+DapiWriteWord 
+DapiWriteLong DapiWriteLongLong (IIJ)V DapiReadByte DapiReadWord DapiReadLong DapiReadLongLong (II)J DapiGetLastError ()I DapiClearLastError 
+DapiDIGet1 
+DapiDIGet8 DapiDIGet16 DapiDIGet32 DapiDIGet64 
+DapiDIGetFF32 DapiDIGetCounter (III)I 
+DapiDOSet1 
+DapiDOSet8 DapiDOSet16 DapiDOSet32 DapiDOSet64 DapiDOReadback32 DapiDOReadback64 DapiDOSet1_WithTimer (IIII)V DapiDOSetBit32 DapiDOClrBit32 	DapiADGet 
+DapiADGetVolt (II)F DapiADGetmA 
+DapiADSetMode 
+DapiADGetMode 	DapiDASet 
+DapiDASetVolt (IIF)V DapiDASetmA 
+DapiDASetMode 
+DapiDAGetMode DapiTempGet DapiCnt48ModeSet DapiCnt48ModeGet DapiCnt48CounterGet32 DapiCnt48CounterGet48 DapiPulseGenSet 	(IIIIII)V 
+DapiPWMOutSet DapiStepperCommand 
+(IIIIIII)I DapiStepperCommandEx 
+(IIIIIIIIII)I DapiStepperGetStatus DapiWatchdogEnable (I)V DapiWatchdogDisable DapiWatchdogRetrigger DapiSpecialCommand (IIIII)I 
+SourceFile 
+DelibJNI.java !    A           	       
+           
+                                                                                                  !  "       #  $       #  %       &  '       (  )       (  *       (  +       ,  -       ,  .       ,  /       &  0       (  1       ,  2       3  4       3  5       6  7       8  9       :  ;       <  =       >  ?       @  A       B  C       D  E       F  G       F  H       I  J       K  L       M  N       O  P       Q  R       S  T       U  V         W       
+  X         Y         Z         [         \         ]         ^         _         `         a         b       !  c       #  d       &  e       6  f         g         h         i       
+  j         k         l         m         n         o         p         q         r       !  s       #  t       &  u       (  v       ,  w       x  y         z       
+  {         |         }       
+  ~                                  
+                  
+                                                                        
+                           
+                                                               
+                  
+                                    
+                           
+                           x                  
+                                    
+                           
+                           (         Q                           
+                           Q                           (                                                                                                                                                                                             
+                           (         Q                                                                                 
+         x                  
+         x                  
+                                                                                 	 
+             
+               x                
+        x                
+                       x                                        !        "        #      $ %        &        '      ( )        *       ( +       , ,       8 -       : .       < /       > 0      1 2      3 4       Q 5       S 6        7        8       
+ 9        :        ;        <        =        >        ?        @        A        B        C       ! D       # E       & F       ( G       , H       3 I       6 J       8 K        L       
+ M        N        O       ( P       Q Q        R        S       
+ T        U        V       
+ W        X        Y        Z        [      \ ]       x ^        _       
+ `        a      b c      d e      f g      h i      j k      l m      n o      p q       r       x s       x t        u        v      w x        y      z {      | }      ~                                                                x                
+        !        #        &        x        (        Q                                     Q        (        x                                B                       
+        x                
+         ;     5     Y                    	    +     Y               	    +     Y               	    +     Y               	    +     Y               	    +     Y               	    +     Y         !      	    +     Y         #      	    +     Y         '      	    +     Y         (      	    +     Y         )      	    +     Y         *      	    +     Y         ,      	    +     Y         -      	    +     Y         .      	    +     Y         /      	    +      Y         3      	    +      Y         5      	    +     Y         9      	    +     Y         :      	    +     Y         ;      	    +     Y         <      	    +     Y         =      	    +     Y         ?      	    +     Y         A      	    +     Y         E      	    +     Y         F      	    +     Y         G      	    +     Y         H      	    +     Y         I      	    +     Y         K      	    +     Y         L      	    +     Y         N      	    +     Y         O      	    +     Y         P      	    +     Y         T      	    +     Y         V      	    +     Y         W      	    +     Y         X      	    +     Y         Y      	    +     Y         ]      	    +     Y         ^      	    +     Y         _      	    +     Y         a      	    +     Y         b      	    +     Y         f      	    +     Y         j      	    +     Y         k      	    +     Y         l      	    +     Y         m      	    +     Y         q      	    +     Y         u      	    +     Y         y      	    +  
+   Y         z      	    +     Y         {      	     +     Y               	     +     Y               	     +     Y               	    +     Y                  
+
+- DelibErrorCodes.class
+  Inhalt:
+   4   DelibJava/DelibErrorCodes  java/lang/Object 
+DAPI_ERR_NONE I 
+ConstantValue     DAPI_ERR_GEN_CLASS    DAPI_ERR_GEN_MALLOC_ERROR   #DAPI_ERR_GEN_BUFFER_TOO_SMALL_ERROR   DAPI_ERR_GEN_ERROR_WITH_TEXT   DAPI_ERR_GEN_SOCKET_ERROR   DAPI_ERR_GEN_BINDING_ERROR   DAPI_ERR_GEN_SIG_HANDLER_ERROR   $DAPI_ERR_GEN_UNKNOWN_ENCRYPTION_TYPE    DAPI_ERR_GEN_ENCRYPTION_ERROR  ! DAPI_ERR_GEN_ILLEGAL_MODULE_ID  0 DAPI_ERR_GEN_ILLEGAL_MODULE_NR  1 DAPI_ERR_GEN_ILLEGAL_HANDLE  2 DAPI_ERR_GEN_NOT_SUPPORTED_MODE  @ "DAPI_ERR_GEN_NOT_SUPPORTED_IO_TYPE  A "DAPI_ERR_GEN_NOT_SUPPORTED_CHANNEL  B %DAPI_ERR_GEN_NOT_SUPPORTED_SW_FEATURE  C #DAPI_ERR_GEN_NOT_SUPPORTED_FUNCTION  D DAPI_ERR_COM_CLASS    *DAPI_ERR_COM_CONN_COULD_NOT_BE_ESTABLISHED   "DAPI_ERR_COM_DEVICE_DID_NOT_ANSWER   DAPI_ERR_COM_HANDLE_INVALID   DAPI_ERR_COM_DELIB_ID_INVALID   DAPI_ERR_COM_FT_HANDLE_INVALID   DAPI_ERR_COM_FT_ERROR   DAPI_ERR_DEV_CLASS    DAPI_ERR_DEV_PKT_CMD_ILLEGAL   "DAPI_ERR_DEV_PKT_DATA_LENGTH_ERROR   $DAPI_ERR_DEV_PKT_DATA_CHECKSUM_ERROR    DAPI_ERR_DEV_PKT_ADDR_NOT_FOR_ME   DAPI_ERR_DEV_PKT_OTHER_ERROR   %DAPI_ERR_DEV_PACKET_CMD_NOT_SUPPORTED   $DAPI_ERR_DEV_PACKET_ID_1_NOT_ALLOWED   &DAPI_ERR_DEV_PACKET_ID_1_NOT_SUPPORTED   !DAPI_ERR_DEV_PACKET_HEADER_NOT_OK   (DAPI_ERR_DEV_PACKET_SUBCMD_NOT_SUPPORTED   DAPI_ERR_DEV_IO_ADDR_ILLEGAL  1 DAPI_ERR_DEV_IO_RD_WR_ERROR  2  DAPI_ERR_DEV_IO_SUB_ADDR_ILLEGAL  3 DAPI_ERR_DEV_IO_OTHER_ERROR  7 "DAPI_ERR_DEV_IO_HTML_ACCESS_DENIED  8 .DAPI_ERR_DEV_FS_INTERNAL_TEXT_BUFFER_TOO_SMALL  E &DAPI_ERR_DEV_FS_RW_OFFSET_OUT_OF_SCOPE  F &DAPI_ERR_DEV_FS_RW_LENGTH_OUT_OF_SCOPE  G  DAPI_ERR_DEV_FS_BUFFER_TOO_SMALL  I DAPI_ERR_DEV_FILE_WRITE_ERROR  p #DAPI_ERR_DEV_CONFIG_WRITE_PROTECTED   #DAPI_ERR_DEV_CONFIG_KEY_NOT_PRESSED   DAPI_ERR_DEV_CONFIG_READ_ERROR   DAPI_ERR_DEV_CONFIG_WRITE_ERROR    DAPI_ERR_DEV_CONFIG_UPDATE_ERROR   1DAPI_ERR_DEV_CONFIG_PARAM_ONLY_ONE_TIME_WRITEABLE   &DAPI_ERR_DEV_CONFIG_PARAM_IS_READ_ONLY   'DAPI_ERR_DEV_CONFIG_PARAM_IS_WRITE_ONLY   &DAPI_ERR_DEV_CONFIG_WRITE_PROTECTED_SW   DAPI_ERR_DEV_CONFIG_FS_INVALID   $DAPI_ERR_DEV_CONFIG_FS_DIR_NOT_FOUND   (DAPI_ERR_DEV_CONFIG_FS_DIR_ALREADY_EXIST   DAPI_ERR_DEV_CONFIG_FS_IS_FULL   'DAPI_ERR_DEV_CONFIG_FS_DIR_DATA_INVALID   $DAPI_ERR_DEV_ENCRYPTED_HEADER_NOT_OK   DAPI_ERR_DEV_ENCRYPTION_ERROR   3DAPI_ERR_DEV_ENCRYPTION_TEMP_ADMIN_MODE_NOT_ALLOWED   'DAPI_ERR_DEV_ENCRYPTION_NO_ADMIN_RIGHTS   DAPI_ERR_DEV_EXECUTE_CMD_ERROR   <init> ()V Code  java/lang/Error  Unresolved compilation problem: 
+	The declared package "java_jni_digital_input.src.DelibJava" does not match the expected package "DelibJava"
+
+     (Ljava/lang/String;)V LineNumberTable LocalVariableTable this LDelibJava/DelibErrorCodes; 
+SourceFile DelibErrorCodes.java !     A           	       
+           
+                                                                                           !       "  #       $  %       &  '       (  )       *  +       ,  -       .  /       0  1       2  3       4  5       6  7       8  9       :  ;       <  =       >  ?       @  A       B  C       D  E       F  G       H  I       J  K       L  M       N  O       P  Q       R  S       T  U       V  W       X  Y       Z  [       \  ]       ^  _       `  a       b  c       d  e       f  g       h  i       j  k       l  m       n  o       p  q       r  s       t  u       v  w       x  y       z  {       |  }       ~                                                      4     
+ Y                    
+          
 
 
