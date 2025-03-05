@@ -6,16 +6,9 @@ import DelibJava.DelibErrorCodes;
 public class UsbModuleTest {
     public static void main(String[] args) {
         try (BufferedReader console = new BufferedReader(new InputStreamReader(System.in))) {
-            // Debugging: Java Library Path ausgeben
-            System.out.println("Library Path: " + System.getProperty("java.library.path"));
-
-            // Module scannen
-            int moduleCount = DelibJNI64.DapiScanModule(16, DelibJNI64.DAPI_SCANMODULE_GET_MODULES_AVAILABLE);
-            System.out.println("Anzahl gefundener Module: " + moduleCount);
-
             // Modul öffnen (BS-USB2 = 0x002D)
             int handle = DelibJNI64.DapiOpenModule(0x002D, 0);
-            if (handle <= 0) { 
+            if (handle <= 0) {
                 System.err.println("Fehler: Modul konnte nicht geöffnet werden!");
                 checkError(console);
                 return;
@@ -47,7 +40,7 @@ public class UsbModuleTest {
     // Prüft auf Fehler und gibt ggf. den Fehlercode aus
     private static void checkError(BufferedReader console) throws Exception {
         int error = DelibJNI64.DapiGetLastError();
-        if (error != DelibErrorCodes.DAPI_ERR_NONE) {
+        if (error != 0) { // DAPI_ERR_NONE ist nicht definiert, daher direkt auf 0 prüfen
             System.err.printf("Error - Code: 0x%x\n", error);
             System.err.println("Drücken Sie Enter zum Beenden.");
             console.readLine();
