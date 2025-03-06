@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// Outputs-Daten
 const outputsData = [
     // Dryve D1 Outputs (0-7)
     { id: 0, label: "DI1 - Referenzfahrt", group: "dryve" },
@@ -24,7 +23,6 @@ const outputsData = [
     { id: 15, label: "Magnetheber an", group: "druckluft" },
 ];
 
-// Inputs-Daten
 const inputsData = [
     // Dryve D1 Inputs (0-2)
     { id: 0, label: "DI1 - Referenzfahrt", group: "dryve" },
@@ -64,7 +62,7 @@ const PinLayout = () => {
         return () => ws.close();
     }, []);
 
-    // Funktion zum Umschalten der Outputs
+    // Umschalten eines einzelnen Outputs
     const toggleOutput = async (index) => {
         const newState = !outputs[index];
         const newOutputs = [...outputs];
@@ -72,18 +70,32 @@ const PinLayout = () => {
         setOutputs(newOutputs);
 
         try {
-            await axios.post('/api/motor/set-output', { pin: index, state: newState });
+            await axios.post('/api/motor/set-output', { pin: index, state: newState ? 1 : 0 });
         } catch (error) {
             console.error('Fehler beim Setzen des Outputs:', error);
         }
     };
 
-    // Funktion zum Umschalten aller Outputs (für Testzwecke)
-    const toggleAllOutputs = () => {
-        setOutputs(outputs.map(state => !state));
+    // Umschalten aller Outputs (Backend übernimmt die Logik)
+    const toggleAllOutputs = async () => {
+        try {
+            const response = await axios.post('/api/motor/toggle-all');
+            console.log(response.data);
+        } catch (error) {
+            console.error('Fehler beim Umschalten aller Outputs:', error);
+        }
     };
 
-    // Stil für Statusanzeige (grün = An, rot = Aus)
+    // Ausschalten aller Outputs
+    const allOutputsOff = async () => {
+        try {
+            const response = await axios.post('/api/motor/all-off');
+            console.log(response.data);
+        } catch (error) {
+            console.error('Fehler beim Ausschalten aller Outputs:', error);
+        }
+    };
+
     const getIndicatorStyle = (state) => ({
         width: '20px',
         height: '20px',
@@ -93,21 +105,19 @@ const PinLayout = () => {
         marginRight: '10px'
     });
 
-    // Farbkodierung nach Gruppe
     const getRowStyle = (group) => {
         switch (group) {
             case "dryve":
-                return { backgroundColor: '#cce5ff' }; // Hellblau für Dryve D1
+                return { backgroundColor: '#cce5ff' };
             case "schrauber":
-                return { backgroundColor: '#ccffcc' }; // Hellgrün für Schrauber
+                return { backgroundColor: '#ccffcc' };
             case "druckluft":
-                return { backgroundColor: '#ffe6cc' }; // Hellorange für Druckluft
+                return { backgroundColor: '#ffe6cc' };
             default:
-                return { backgroundColor: '#ffffff' }; // Weiß für unbeschriftet
+                return { backgroundColor: '#ffffff' };
         }
     };
 
-    // Flexbox-Styling für nebeneinanderliegende Tabellen
     const containerStyle = {
         display: 'flex',
         justifyContent: 'space-between',
@@ -117,15 +127,13 @@ const PinLayout = () => {
 
     const tableWrapperStyle = {
         flex: '1',
-        minWidth: '0' // Verhindert Überlauf
+        minWidth: '0'
     };
 
     return (
         <div>
             <h2>Pin-Layout</h2>
             <div style={containerStyle}>
-
-                {/* Outputs Tabelle */}
                 <div style={tableWrapperStyle}>
                     <h3>Ausgänge (Outputs)</h3>
                     <table border="1" cellPadding="5" style={{ width: '100%' }}>
@@ -153,9 +161,13 @@ const PinLayout = () => {
                             ))}
                         </tbody>
                     </table>
+                    <button onClick={toggleAllOutputs} style={{ marginRight: '10px' }}>
+                        Alles umschalten
+                    </button>
+                    <button onClick={allOutputsOff}>
+                        Alle aus
+                    </button>
                 </div>
-
-                {/* Inputs Tabelle */}
                 <div style={tableWrapperStyle}>
                     <h3>Eingänge (Inputs)</h3>
                     <table border="1" cellPadding="5" style={{ width: '100%' }}>
@@ -181,11 +193,6 @@ const PinLayout = () => {
                     </table>
                 </div>
             </div>
-
-            {/* Test-Button zum Umschalten aller Outputs */}
-            <button onClick={toggleAllOutputs} style={{ marginTop: '20px', padding: '10px 20px' }}>
-                Test: Alle Outputs umschalten
-            </button>
         </div>
     );
 };

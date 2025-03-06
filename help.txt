@@ -1,23 +1,4 @@
-C:\Program Files\Java\jre1.8.0_431\bin
-
-C:\Program Files (x86)\DEDITEC\DELIB
-
-https://www.oracle.com/webapps/redirect/signon?nexturl=https://download.oracle.com/otn/java/jdk/8u202-b08/1961070e4c9b4e26a04e7f5a083f551e/jdk-8u202-windows-x64.exe
-
-
-C:\Program Files\Java\jdk1.8.0_202\
-
-Runterladen der Java JDK ohne anmelden:
-https://sites.google.com/view/java-se-download-url-converter
-
-set PATH=C:\Program Files\Java\jdk1.8.0_202\Java\jdk1.8.0_202\bin;%PATH%
-
-wenns nicht geht dann:
-
-set PATH=C:\Program Files\Java\jdk1.8.0_202\bin;%PATH%
-
-C:\Program Files\Java\jdk1.8.0_202\bin
-
+Help textdatees
 
 Ausführen der Testdatei:
 javac -d . DelibJava\UsbModuleTest.java
