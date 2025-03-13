@@ -1,5 +1,8 @@
-Help textdatees
+Help
 
 Ausführen der Testdatei:
 javac -d . DelibJava\UsbModuleTest.java
 java UsbModuleTest
+
+Ausführen des Skripts
+.\start_app.bat
