@@ -9,7 +9,6 @@ function App() {
     <div className="App">
       <h1>Motorsteuerung für dryve 16 D1</h1>
       <MotorControl />
-      <EmergencyStop />
       <StatusDisplay />
       <PinLayout />
     </div>

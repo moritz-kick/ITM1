@@ -1,0 +1,542 @@
+2025-03-12T19:26:20.476Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T19:26:20.478Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T19:26:20.987Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:26:20.988Z [ERROR] Error in toggle-pin: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:26:23.475Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T19:26:23.476Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T19:26:23.749Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:26:23.750Z [ERROR] Error in toggle-pin: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:26:23.968Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T19:26:23.970Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T19:26:24.194Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T19:26:24.195Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T19:26:24.263Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:26:24.265Z [ERROR] Error in toggle-pin: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:26:24.366Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T19:26:24.367Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T19:26:24.505Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:26:24.506Z [ERROR] Error in toggle-pin: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:26:24.660Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:26:24.661Z [ERROR] Error in toggle-pin: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:30:40.698Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T19:30:40.700Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T19:30:40.957Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:30:40.958Z [ERROR] Error in toggle-pin: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:35:26.019Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T19:35:26.022Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T19:35:26.283Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:35:26.284Z [ERROR] Error in toggle-pin: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:41:04.745Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T19:41:04.747Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T19:41:05.002Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:41:05.003Z [ERROR] Error in toggle-pin: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:48:08.373Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T19:48:08.375Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T19:48:08.636Z [ERROR] Deditec command error: Fehler: Hauptklasse toggle-pin konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:48:08.638Z [ERROR] Error in toggle-pin: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava.DeditecCLI toggle-pin 0
+Fehler: Hauptklasse toggle-pin konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:50:26.807Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T19:50:26.810Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava.DeditecCLI.main toggle-pin 0
+2025-03-12T19:50:27.124Z [ERROR] Deditec command error: Fehler: Hauptklasse toggle-pin konnte nicht gefunden oder geladen werden
+
+2025-03-12T19:50:27.125Z [ERROR] Error in toggle-pin: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava.DeditecCLI.main toggle-pin 0
+Fehler: Hauptklasse toggle-pin konnte nicht gefunden oder geladen werden
+
+2025-03-12T20:50:41.529Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T20:50:41.532Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T20:50:41.853Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T20:50:41.855Z [ERROR] Error in toggle-pin: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\backend\DelibJava DelibJava.DeditecCLI toggle-pin 0
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T20:51:44.365Z [INFO] Received emergency-stop request
+2025-03-12T20:51:44.367Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\DelibJava DelibJava.DeditecCLI emergency-stop
+2025-03-12T20:51:44.634Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T20:51:44.635Z [ERROR] Error in emergency-stop: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\DelibJava DelibJava.DeditecCLI emergency-stop
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T20:51:48.512Z [INFO] Received toggle-pin request: pin=3
+2025-03-12T20:51:48.513Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\DelibJava DelibJava.DeditecCLI toggle-pin 3
+2025-03-12T20:51:48.755Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T20:51:48.757Z [ERROR] Error in toggle-pin: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\DelibJava DelibJava.DeditecCLI toggle-pin 3
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T20:54:06.683Z [INFO] Received toggle-all request
+2025-03-12T20:54:06.686Z [INFO] Executing Deditec command: java DelibJava.DeditecCLI toggle-all
+2025-03-12T20:54:06.975Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T20:54:06.977Z [ERROR] Error in toggle-all: Error: Command failed: java DelibJava.DeditecCLI toggle-all
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T20:56:32.961Z [INFO] Received toggle-all request
+2025-03-12T20:56:32.962Z [INFO] Executing Deditec command: java C:\Users\admin\Desktop\ITM1\DelibJava.DeditecCLI toggle-all
+2025-03-12T20:56:33.238Z [ERROR] Deditec command error: Fehler: Hauptklasse C:\Users\admin\Desktop\ITM1\DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T20:56:33.239Z [ERROR] Error in toggle-all: Error: Command failed: java C:\Users\admin\Desktop\ITM1\DelibJava.DeditecCLI toggle-all
+Fehler: Hauptklasse C:\Users\admin\Desktop\ITM1\DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T20:58:42.220Z [INFO] Received all-off request
+2025-03-12T20:58:42.223Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\DelibJava DeditecCLI all-off
+2025-03-12T20:58:42.560Z [ERROR] Deditec command error: Fehler: Hauptklasse DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T20:58:42.561Z [ERROR] Error in all-off: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\DelibJava DeditecCLI all-off
+Fehler: Hauptklasse DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T21:01:01.155Z [INFO] Received all-off request
+2025-03-12T21:01:01.158Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\DelibJava DeditecCLI all-off
+2025-03-12T21:01:01.419Z [ERROR] Deditec command error: Fehler: Hauptklasse DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T21:01:01.420Z [ERROR] Error in all-off: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\DelibJava DeditecCLI all-off
+Fehler: Hauptklasse DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T21:02:35.579Z [INFO] Received all-off request
+2025-03-12T21:02:35.580Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\DelibJava DeditecCLI all-off
+2025-03-12T21:02:35.840Z [ERROR] Deditec command error: Fehler: Hauptklasse DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T21:02:35.841Z [ERROR] Error in all-off: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\DelibJava DeditecCLI all-off
+Fehler: Hauptklasse DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T21:04:53.100Z [INFO] Received all-off request
+2025-03-12T21:04:53.102Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\DelibJava DelibJava.DeditecCLI all-off
+2025-03-12T21:04:53.361Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T21:04:53.363Z [ERROR] Error in all-off: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\DelibJava DelibJava.DeditecCLI all-off
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T21:04:54.184Z [INFO] Received toggle-all request
+2025-03-12T21:04:54.186Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1\DelibJava DelibJava.DeditecCLI toggle-all
+2025-03-12T21:04:54.424Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T21:04:54.425Z [ERROR] Error in toggle-all: Error: Command failed: java -cp C:\Users\admin\Desktop\ITM1\DelibJava DelibJava.DeditecCLI toggle-all
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T21:08:50.234Z [INFO] Received all-off request
+2025-03-12T21:08:50.237Z [INFO] Executing Deditec command: java -cp .;C:\Users\admin\Desktop\ITM1\DelibJava DelibJava.DeditecCLI all-off
+2025-03-12T21:08:50.493Z [ERROR] Deditec command error: Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T21:08:50.494Z [ERROR] Error in all-off: Error: Command failed: java -cp .;C:\Users\admin\Desktop\ITM1\DelibJava DelibJava.DeditecCLI all-off
+Fehler: Hauptklasse DelibJava.DeditecCLI konnte nicht gefunden oder geladen werden
+
+2025-03-12T21:10:35.316Z [INFO] Received all-off request
+2025-03-12T21:10:35.318Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI all-off
+2025-03-12T21:10:35.924Z [INFO] Deditec command stdout: {"status":"All outputs turned off"}
+
+2025-03-12T21:10:35.926Z [INFO] all-off result: {"status":"All outputs turned off"}
+2025-03-12T21:10:38.653Z [INFO] Received toggle-all request
+2025-03-12T21:10:38.655Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-all
+2025-03-12T21:10:39.246Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+
+2025-03-12T21:10:39.247Z [INFO] toggle-all result: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+2025-03-12T21:11:03.419Z [INFO] Received toggle-pin request: pin=3
+2025-03-12T21:11:03.421Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 3
+2025-03-12T21:11:04.020Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 3: Fehlercode 322"}
+
+2025-03-12T21:11:04.021Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 3: Fehlercode 322"}
+2025-03-12T21:11:07.596Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T21:11:07.598Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T21:11:08.172Z [INFO] Deditec command stdout: {"status":"Pin 0 toggled"}
+
+2025-03-12T21:11:08.173Z [INFO] toggle-pin result: {"status":"Pin 0 toggled"}
+2025-03-12T21:11:08.684Z [INFO] Received toggle-pin request: pin=1
+2025-03-12T21:11:08.685Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 1
+2025-03-12T21:11:09.257Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+
+2025-03-12T21:11:09.258Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+2025-03-12T21:11:11.270Z [INFO] Received toggle-pin request: pin=2
+2025-03-12T21:11:11.272Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 2
+2025-03-12T21:11:11.832Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 2: Fehlercode 322"}
+
+2025-03-12T21:11:11.834Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 2: Fehlercode 322"}
+2025-03-12T21:11:12.868Z [INFO] Received toggle-pin request: pin=4
+2025-03-12T21:11:12.869Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 4
+2025-03-12T21:11:13.407Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 4: Fehlercode 322"}
+
+2025-03-12T21:11:13.408Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 4: Fehlercode 322"}
+2025-03-12T21:11:13.918Z [INFO] Received toggle-pin request: pin=5
+2025-03-12T21:11:13.920Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 5
+2025-03-12T21:11:14.491Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 5: Fehlercode 322"}
+
+2025-03-12T21:11:14.492Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 5: Fehlercode 322"}
+2025-03-12T21:11:15.268Z [INFO] Received toggle-pin request: pin=6
+2025-03-12T21:11:15.270Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 6
+2025-03-12T21:11:15.804Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 6: Fehlercode 322"}
+
+2025-03-12T21:11:15.805Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 6: Fehlercode 322"}
+2025-03-12T21:11:16.535Z [INFO] Received toggle-pin request: pin=7
+2025-03-12T21:11:16.537Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 7
+2025-03-12T21:11:17.087Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 7: Fehlercode 322"}
+
+2025-03-12T21:11:17.089Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 7: Fehlercode 322"}
+2025-03-12T21:11:18.275Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T21:11:18.276Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T21:11:18.889Z [INFO] Deditec command stdout: {"status":"Pin 0 toggled"}
+
+2025-03-12T21:11:18.890Z [INFO] toggle-pin result: {"status":"Pin 0 toggled"}
+2025-03-12T21:11:19.527Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T21:11:19.528Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T21:11:20.081Z [INFO] Deditec command stdout: {"status":"Pin 0 toggled"}
+
+2025-03-12T21:11:20.083Z [INFO] toggle-pin result: {"status":"Pin 0 toggled"}
+2025-03-12T21:11:20.854Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T21:11:20.856Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T21:11:21.395Z [INFO] Deditec command stdout: {"status":"Pin 0 toggled"}
+
+2025-03-12T21:11:21.396Z [INFO] toggle-pin result: {"status":"Pin 0 toggled"}
+2025-03-12T21:11:23.029Z [INFO] Received toggle-pin request: pin=8
+2025-03-12T21:11:23.030Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 8
+2025-03-12T21:11:23.555Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 8: Fehlercode 322"}
+
+2025-03-12T21:11:23.556Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 8: Fehlercode 322"}
+2025-03-12T21:11:24.268Z [INFO] Received toggle-pin request: pin=9
+2025-03-12T21:11:24.269Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 9
+2025-03-12T21:11:24.827Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 9: Fehlercode 322"}
+
+2025-03-12T21:11:24.828Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 9: Fehlercode 322"}
+2025-03-12T21:11:25.331Z [INFO] Received toggle-pin request: pin=10
+2025-03-12T21:11:25.333Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 10
+2025-03-12T21:11:25.878Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 10: Fehlercode 322"}
+
+2025-03-12T21:11:25.879Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 10: Fehlercode 322"}
+2025-03-12T21:11:26.658Z [INFO] Received toggle-pin request: pin=11
+2025-03-12T21:11:26.660Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 11
+2025-03-12T21:11:27.214Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 11: Fehlercode 322"}
+
+2025-03-12T21:11:27.215Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 11: Fehlercode 322"}
+2025-03-12T21:11:29.306Z [INFO] Received toggle-pin request: pin=12
+2025-03-12T21:11:29.308Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 12
+2025-03-12T21:11:29.877Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 12: Fehlercode 322"}
+
+2025-03-12T21:11:29.878Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 12: Fehlercode 322"}
+2025-03-12T21:11:30.243Z [INFO] Received toggle-pin request: pin=13
+2025-03-12T21:11:30.245Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 13
+2025-03-12T21:11:30.803Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 13: Fehlercode 322"}
+
+2025-03-12T21:11:30.805Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 13: Fehlercode 322"}
+2025-03-12T21:11:32.157Z [INFO] Received toggle-pin request: pin=14
+2025-03-12T21:11:32.159Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 14
+2025-03-12T21:11:32.706Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 14: Fehlercode 322"}
+
+2025-03-12T21:11:32.708Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 14: Fehlercode 322"}
+2025-03-12T21:11:33.842Z [INFO] Received toggle-pin request: pin=15
+2025-03-12T21:11:33.844Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 15
+2025-03-12T21:11:34.398Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 15: Fehlercode 322"}
+
+2025-03-12T21:11:34.399Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 15: Fehlercode 322"}
+2025-03-12T21:11:38.605Z [INFO] Received toggle-all request
+2025-03-12T21:11:38.607Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-all
+2025-03-12T21:11:39.160Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+
+2025-03-12T21:11:39.161Z [INFO] toggle-all result: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+2025-03-12T21:11:40.474Z [INFO] Received all-off request
+2025-03-12T21:11:40.476Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI all-off
+2025-03-12T21:11:41.175Z [INFO] Deditec command stdout: {"status":"All outputs turned off"}
+
+2025-03-12T21:11:41.175Z [INFO] all-off result: {"status":"All outputs turned off"}
+2025-03-12T21:11:44.028Z [INFO] Received toggle-all request
+2025-03-12T21:11:44.030Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-all
+2025-03-12T21:11:44.581Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+
+2025-03-12T21:11:44.582Z [INFO] toggle-all result: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+2025-03-12T21:11:45.850Z [INFO] Received all-off request
+2025-03-12T21:11:45.852Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI all-off
+2025-03-12T21:11:46.472Z [INFO] Deditec command stdout: {"status":"All outputs turned off"}
+
+2025-03-12T21:11:46.473Z [INFO] all-off result: {"status":"All outputs turned off"}
+2025-03-12T21:11:49.023Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T21:11:49.024Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T21:11:49.595Z [INFO] Deditec command stdout: {"status":"Pin 0 toggled"}
+
+2025-03-12T21:11:49.596Z [INFO] toggle-pin result: {"status":"Pin 0 toggled"}
+2025-03-12T21:11:52.188Z [INFO] Received all-off request
+2025-03-12T21:11:52.190Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI all-off
+2025-03-12T21:11:52.791Z [INFO] Deditec command stdout: {"status":"All outputs turned off"}
+
+2025-03-12T21:11:52.793Z [INFO] all-off result: {"status":"All outputs turned off"}
+2025-03-12T21:11:54.362Z [INFO] Received all-off request
+2025-03-12T21:11:54.364Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI all-off
+2025-03-12T21:11:54.957Z [INFO] Deditec command stdout: {"status":"All outputs turned off"}
+
+2025-03-12T21:11:54.959Z [INFO] all-off result: {"status":"All outputs turned off"}
+2025-03-12T21:12:00.100Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T21:12:00.102Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T21:12:00.712Z [INFO] Deditec command stdout: {"status":"Pin 0 toggled"}
+
+2025-03-12T21:12:00.713Z [INFO] toggle-pin result: {"status":"Pin 0 toggled"}
+2025-03-12T21:12:01.420Z [INFO] Received toggle-pin request: pin=1
+2025-03-12T21:12:01.422Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 1
+2025-03-12T21:12:01.993Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+
+2025-03-12T21:12:01.994Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+2025-03-12T21:12:02.613Z [INFO] Received toggle-pin request: pin=1
+2025-03-12T21:12:02.615Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 1
+2025-03-12T21:12:03.181Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+
+2025-03-12T21:12:03.182Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+2025-03-12T21:12:05.058Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T21:12:05.060Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T21:12:05.655Z [INFO] Deditec command stdout: {"status":"Pin 0 toggled"}
+
+2025-03-12T21:12:05.656Z [INFO] toggle-pin result: {"status":"Pin 0 toggled"}
+2025-03-12T21:17:32.249Z [INFO] Received all-off request
+2025-03-12T21:17:32.250Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI all-off
+2025-03-12T21:17:32.879Z [INFO] Deditec command stdout: {"status":"All outputs turned off"}
+
+2025-03-12T21:17:32.880Z [INFO] all-off result: {"status":"All outputs turned off"}
+2025-03-12T21:17:37.939Z [INFO] Received all-off request
+2025-03-12T21:17:37.940Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI all-off
+2025-03-12T21:17:38.588Z [INFO] Deditec command stdout: {"status":"All outputs turned off"}
+
+2025-03-12T21:17:38.590Z [INFO] all-off result: {"status":"All outputs turned off"}
+2025-03-12T21:17:39.933Z [INFO] Received toggle-pin request: pin=13
+2025-03-12T21:17:39.935Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 13
+2025-03-12T21:17:40.512Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 13: Fehlercode 322"}
+
+2025-03-12T21:17:40.513Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 13: Fehlercode 322"}
+2025-03-12T21:17:43.256Z [INFO] Received toggle-pin request: pin=12
+2025-03-12T21:17:43.258Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 12
+2025-03-12T21:17:43.808Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 12: Fehlercode 322"}
+
+2025-03-12T21:17:43.809Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 12: Fehlercode 322"}
+2025-03-12T21:17:44.433Z [INFO] Received toggle-pin request: pin=12
+2025-03-12T21:17:44.434Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 12
+2025-03-12T21:17:44.985Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 12: Fehlercode 322"}
+
+2025-03-12T21:17:44.986Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 12: Fehlercode 322"}
+2025-03-12T21:17:45.821Z [INFO] Received toggle-pin request: pin=13
+2025-03-12T21:17:45.823Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 13
+2025-03-12T21:17:46.383Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 13: Fehlercode 322"}
+
+2025-03-12T21:17:46.384Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 13: Fehlercode 322"}
+2025-03-12T21:17:50.973Z [INFO] Received toggle-pin request: pin=12
+2025-03-12T21:17:50.975Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 12
+2025-03-12T21:17:51.548Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 12: Fehlercode 322"}
+
+2025-03-12T21:17:51.549Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 12: Fehlercode 322"}
+2025-03-12T21:17:52.908Z [INFO] Received toggle-pin request: pin=12
+2025-03-12T21:17:52.911Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 12
+2025-03-12T21:17:53.466Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 12: Fehlercode 322"}
+
+2025-03-12T21:17:53.467Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 12: Fehlercode 322"}
+2025-03-12T21:17:54.250Z [INFO] Received toggle-pin request: pin=13
+2025-03-12T21:17:54.252Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 13
+2025-03-12T21:17:54.825Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 13: Fehlercode 322"}
+
+2025-03-12T21:17:54.826Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 13: Fehlercode 322"}
+2025-03-12T21:17:55.466Z [INFO] Received toggle-pin request: pin=13
+2025-03-12T21:17:55.467Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 13
+2025-03-12T21:17:56.041Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 13: Fehlercode 322"}
+
+2025-03-12T21:17:56.042Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 13: Fehlercode 322"}
+2025-03-12T21:17:57.190Z [INFO] Received all-off request
+2025-03-12T21:17:57.192Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI all-off
+2025-03-12T21:17:57.794Z [INFO] Deditec command stdout: {"status":"All outputs turned off"}
+
+2025-03-12T21:17:57.796Z [INFO] all-off result: {"status":"All outputs turned off"}
+2025-03-12T21:18:05.884Z [INFO] Received toggle-pin request: pin=13
+2025-03-12T21:18:05.885Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 13
+2025-03-12T21:18:06.444Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 13: Fehlercode 322"}
+
+2025-03-12T21:18:06.445Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 13: Fehlercode 322"}
+2025-03-12T21:18:06.670Z [INFO] Received toggle-pin request: pin=12
+2025-03-12T21:18:06.672Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 12
+2025-03-12T21:18:07.220Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 12: Fehlercode 322"}
+
+2025-03-12T21:18:07.221Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 12: Fehlercode 322"}
+2025-03-12T21:18:07.468Z [INFO] Received toggle-pin request: pin=11
+2025-03-12T21:18:07.469Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 11
+2025-03-12T21:18:08.007Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 11: Fehlercode 322"}
+
+2025-03-12T21:18:08.008Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 11: Fehlercode 322"}
+2025-03-12T21:18:08.321Z [INFO] Received toggle-pin request: pin=10
+2025-03-12T21:18:08.322Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 10
+2025-03-12T21:18:08.882Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 10: Fehlercode 322"}
+
+2025-03-12T21:18:08.884Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 10: Fehlercode 322"}
+2025-03-12T21:18:09.227Z [INFO] Received toggle-pin request: pin=9
+2025-03-12T21:18:09.229Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 9
+2025-03-12T21:18:09.772Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 9: Fehlercode 322"}
+
+2025-03-12T21:18:09.773Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 9: Fehlercode 322"}
+2025-03-12T21:18:10.022Z [INFO] Received toggle-pin request: pin=8
+2025-03-12T21:18:10.024Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 8
+2025-03-12T21:18:10.569Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 8: Fehlercode 322"}
+
+2025-03-12T21:18:10.571Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 8: Fehlercode 322"}
+2025-03-12T21:18:10.750Z [INFO] Received toggle-pin request: pin=7
+2025-03-12T21:18:10.752Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 7
+2025-03-12T21:18:11.312Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 7: Fehlercode 322"}
+
+2025-03-12T21:18:11.313Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 7: Fehlercode 322"}
+2025-03-12T21:18:12.204Z [INFO] Received toggle-pin request: pin=6
+2025-03-12T21:18:12.206Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 6
+2025-03-12T21:18:12.742Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 6: Fehlercode 322"}
+
+2025-03-12T21:18:12.743Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 6: Fehlercode 322"}
+2025-03-12T21:18:13.187Z [INFO] Received toggle-pin request: pin=5
+2025-03-12T21:18:13.190Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 5
+2025-03-12T21:18:13.726Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 5: Fehlercode 322"}
+
+2025-03-12T21:18:13.727Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 5: Fehlercode 322"}
+2025-03-12T21:18:14.036Z [INFO] Received toggle-pin request: pin=4
+2025-03-12T21:18:14.040Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 4
+2025-03-12T21:18:14.607Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 4: Fehlercode 322"}
+
+2025-03-12T21:18:14.608Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 4: Fehlercode 322"}
+2025-03-12T21:18:14.935Z [INFO] Received toggle-pin request: pin=3
+2025-03-12T21:18:14.936Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 3
+2025-03-12T21:18:15.487Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 3: Fehlercode 322"}
+
+2025-03-12T21:18:15.489Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 3: Fehlercode 322"}
+2025-03-12T21:18:17.591Z [INFO] Received toggle-pin request: pin=2
+2025-03-12T21:18:17.592Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 2
+2025-03-12T21:18:18.225Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 2: Fehlercode 322"}
+
+2025-03-12T21:18:18.226Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 2: Fehlercode 322"}
+2025-03-12T21:18:26.193Z [INFO] Received toggle-pin request: pin=1
+2025-03-12T21:18:26.194Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 1
+2025-03-12T21:18:26.805Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+
+2025-03-12T21:18:26.806Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+2025-03-12T21:18:27.715Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T21:18:27.716Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T21:18:28.260Z [INFO] Deditec command stdout: {"status":"Pin 0 toggled"}
+
+2025-03-12T21:18:28.261Z [INFO] toggle-pin result: {"status":"Pin 0 toggled"}
+2025-03-12T21:18:33.141Z [INFO] Received toggle-pin request: pin=14
+2025-03-12T21:18:33.143Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 14
+2025-03-12T21:18:33.711Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 14: Fehlercode 322"}
+
+2025-03-12T21:18:33.712Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 14: Fehlercode 322"}
+2025-03-12T21:18:35.223Z [INFO] Received toggle-pin request: pin=15
+2025-03-12T21:18:35.224Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 15
+2025-03-12T21:18:35.793Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 15: Fehlercode 322"}
+
+2025-03-12T21:18:35.794Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 15: Fehlercode 322"}
+2025-03-12T21:18:45.971Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T21:18:45.972Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T21:18:46.596Z [INFO] Deditec command stdout: {"status":"Pin 0 toggled"}
+
+2025-03-12T21:18:46.597Z [INFO] toggle-pin result: {"status":"Pin 0 toggled"}
+2025-03-12T21:18:48.643Z [INFO] Received toggle-pin request: pin=0
+2025-03-12T21:18:48.645Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 0
+2025-03-12T21:18:49.163Z [INFO] Deditec command stdout: {"status":"Pin 0 toggled"}
+
+2025-03-12T21:18:49.164Z [INFO] toggle-pin result: {"status":"Pin 0 toggled"}
+2025-03-12T21:18:57.813Z [INFO] Received all-off request
+2025-03-12T21:18:57.814Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI all-off
+2025-03-12T21:18:58.422Z [INFO] Deditec command stdout: {"status":"All outputs turned off"}
+
+2025-03-12T21:18:58.423Z [INFO] all-off result: {"status":"All outputs turned off"}
+2025-03-12T21:19:00.249Z [INFO] Received toggle-all request
+2025-03-12T21:19:00.251Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-all
+2025-03-12T21:19:00.834Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+
+2025-03-12T21:19:00.835Z [INFO] toggle-all result: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+2025-03-12T21:19:02.071Z [INFO] Received toggle-all request
+2025-03-12T21:19:02.073Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-all
+2025-03-12T21:19:02.701Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+
+2025-03-12T21:19:02.702Z [INFO] toggle-all result: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+2025-03-12T21:19:03.804Z [INFO] Received toggle-all request
+2025-03-12T21:19:03.806Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-all
+2025-03-12T21:19:04.368Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+
+2025-03-12T21:19:04.369Z [INFO] toggle-all result: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+2025-03-12T21:19:05.162Z [INFO] Received toggle-all request
+2025-03-12T21:19:05.164Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-all
+2025-03-12T21:19:05.717Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+
+2025-03-12T21:19:05.718Z [INFO] toggle-all result: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+2025-03-13T08:41:44.720Z [INFO] Received toggle-pin request: pin=14
+2025-03-13T08:41:44.722Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 14
+2025-03-13T08:41:46.218Z [INFO] Received toggle-pin request: pin=14
+2025-03-13T08:41:46.219Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 14
+2025-03-13T08:41:49.789Z [INFO] Deditec command stdout: {"error":"Modul konnte nicht geöffnet werden, Fehlercode: 513"}
+
+2025-03-13T08:41:49.790Z [INFO] toggle-pin result: {"error":"Modul konnte nicht geöffnet werden, Fehlercode: 513"}
+2025-03-13T08:41:49.969Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 14: Fehlercode 322"}
+
+2025-03-13T08:41:49.970Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 14: Fehlercode 322"}
+2025-03-13T08:41:53.103Z [INFO] Received toggle-pin request: pin=14
+2025-03-13T08:41:53.105Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 14
+2025-03-13T08:41:53.685Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 14: Fehlercode 322"}
+
+2025-03-13T08:41:53.686Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 14: Fehlercode 322"}
+2025-03-13T08:41:56.242Z [INFO] Received all-off request
+2025-03-13T08:41:56.245Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI all-off
+2025-03-13T08:41:56.888Z [INFO] Deditec command stdout: {"status":"All outputs turned off"}
+
+2025-03-13T08:41:56.890Z [INFO] all-off result: {"status":"All outputs turned off"}
+2025-03-13T08:42:12.310Z [INFO] Received toggle-pin request: pin=4
+2025-03-13T08:42:12.311Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 4
+2025-03-13T08:42:12.903Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 4: Fehlercode 322"}
+
+2025-03-13T08:42:12.904Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 4: Fehlercode 322"}
+2025-03-13T08:42:22.491Z [INFO] Received toggle-pin request: pin=1
+2025-03-13T08:42:22.493Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 1
+2025-03-13T08:42:23.076Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+
+2025-03-13T08:42:23.077Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+2025-03-13T08:42:25.697Z [INFO] Received toggle-pin request: pin=3
+2025-03-13T08:42:25.699Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 3
+2025-03-13T08:42:26.276Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 3: Fehlercode 322"}
+
+2025-03-13T08:42:26.277Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 3: Fehlercode 322"}
+2025-03-13T08:42:29.825Z [INFO] Received toggle-pin request: pin=1
+2025-03-13T08:42:29.827Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 1
+2025-03-13T08:42:30.394Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+
+2025-03-13T08:42:30.395Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 1: Fehlercode 322"}
+2025-03-13T08:42:37.023Z [INFO] Received toggle-pin request: pin=2
+2025-03-13T08:42:37.024Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 2
+2025-03-13T08:42:37.597Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 2: Fehlercode 322"}
+
+2025-03-13T08:42:37.598Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 2: Fehlercode 322"}
+2025-03-13T08:42:40.676Z [INFO] Received toggle-pin request: pin=7
+2025-03-13T08:42:40.678Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 7
+2025-03-13T08:42:41.261Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 7: Fehlercode 322"}
+
+2025-03-13T08:42:41.262Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 7: Fehlercode 322"}
+2025-03-13T08:42:44.547Z [INFO] Received all-off request
+2025-03-13T08:42:44.549Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI all-off
+2025-03-13T08:42:45.188Z [INFO] Deditec command stdout: {"status":"All outputs turned off"}
+
+2025-03-13T08:42:45.190Z [INFO] all-off result: {"status":"All outputs turned off"}
+2025-03-13T08:42:50.075Z [INFO] Received toggle-pin request: pin=7
+2025-03-13T08:42:50.077Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 7
+2025-03-13T08:42:50.648Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 7: Fehlercode 322"}
+
+2025-03-13T08:42:50.650Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 7: Fehlercode 322"}
+2025-03-13T08:42:51.845Z [INFO] Received toggle-pin request: pin=7
+2025-03-13T08:42:51.846Z [INFO] Executing Deditec command: java -cp C:\Users\admin\Desktop\ITM1 DelibJava.DeditecCLI toggle-pin 7
+2025-03-13T08:42:52.426Z [INFO] Deditec command stdout: {"error":"Fehler beim Setzen von Output 7: Fehlercode 322"}
+
+2025-03-13T08:42:52.427Z [INFO] toggle-pin result: {"error":"Fehler beim Setzen von Output 7: Fehlercode 322"}

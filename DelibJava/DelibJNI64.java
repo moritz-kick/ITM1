@@ -500,7 +500,7 @@ public class DelibJNI64
     public static final int DAPI_STEPPER_MOTORCHAR_PAR_DECELERATIONSLOPE                    = 7;    // Bremsung in [Vollschritten / ms]
     public static final int DAPI_STEPPER_MOTORCHAR_PAR_PHASECURRENT                         = 8;    // Phasenstrom [mA]
     public static final int DAPI_STEPPER_MOTORCHAR_PAR_HOLDPHASECURRENT                     = 9;    // Phasenstrom bei Motorstillstand [mA]
-    public static final int DAPI_STEPPER_MOTORCHAR_PAR_HOLDTIME                             = 10;   // Zeit in der der Haltestrom fließt nach Motorstop [s]
+    public static final int DAPI_STEPPER_MOTORCHAR_PAR_HOLDTIME                             = 10;   // Zeit in der der Haltestrom flieï¿½t nach Motorstop [s]
     public static final int DAPI_STEPPER_MOTORCHAR_PAR_STATUSLEDMODE                        = 11;   // Betriebsart der Status-LED
     public static final int DAPI_STEPPER_MOTORCHAR_PAR_INVERT_ENDSW1                        = 12;   // invertiere Funktion des Endschalter1  
     public static final int DAPI_STEPPER_MOTORCHAR_PAR_INVERT_ENDSW2                        = 13;   // invertiere Funktion des Endschalter12 

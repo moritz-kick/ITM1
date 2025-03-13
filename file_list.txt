@@ -73,24 +73,797 @@ if __name__ == "__main__":
 - start_app.bat
   Inhalt:
 @echo off
-REM Starte Backend
-start cmd /k "cd backend && npm start"
+REM Suche und beende alle Prozesse auf Port 3000 (inklusive versteckter Prozesse)
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3000') do (
+    echo Beende Prozess mit PID %%a
+    taskkill /PID %%a /F 2>nul
+)
 
-REM Starte Frontend
-start cmd /k "cd frontend && npm start"
+REM Warte kurz, um sicherzustellen, dass die Prozesse beendet sind
+timeout /t 3 >nul
+
+REM Prüfe erneut, ob Port 3000 noch belegt ist
+netstat -ano | findstr :3000
+if %errorlevel% == 0 (
+    echo Fehler: Port 3000 ist immer noch belegt!
+    echo Bitte starte den PC neu oder beende die Prozesse manuell.
+    pause
+    exit /b
+)
+
+REM Kompiliere Java Klassen
+cd DelibJava
+javac *.java
+cd ..
+
+REM Starte Backend im gleichen Fenster
+start /B cmd /k "cd backend && npm start"
+
+REM Starte Frontend im gleichen Fenster
+start /B cmd /k "cd frontend && npm start"
 
 REM Warte 5 Sekunden, damit die Server hochfahren
 timeout /t 5
 
-REM Öffne das Frontend
-start "" "chrome" "http://localhost:3000"
+REM Öffne das Frontend im Browser
+start "" "http://localhost:3000"
 
-REM Öffne eine weitere Browser-Instanz mit der dryve D1 IP-Adresse
-start "" "chrome" "http://169.254.104.33"
+
+
+[backend]
+- package.json
+  Inhalt:
+{
+  "name": "motor-control-backend",
+  "version": "1.0.0",
+  "description": "Backend for dryve 16 D1 motor control",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.13.0",
+    "body-parser": "^1.20.1"
+  }
+}
+
+
+- server.js
+  Inhalt:
+const express = require('express');
+const bodyParser = require('body-parser');
+const motorRoutes = require('./routes/motor');
+const WebSocket = require('ws');
+const http = require('http');
+const path = require('path');
+
+const app = express();
+app.use(bodyParser.json());
+app.use('/api/motor', motorRoutes);
+
+// Use port 3000 so that the frontend (and BAT file) match the URL
+const PORT = process.env.PORT || 3000;
+const server = http.createServer(app);
+
+// WebSocket server for real-time updates (e.g. digital input statuses)
+const wss = new WebSocket.Server({ server });
+wss.on('connection', ws => {
+  console.log('WebSocket client connected');
+  // For demonstration, send an initial message.
+  ws.send(JSON.stringify({ type: 'message', message: 'WebSocket connection established' }));
+});
+
+server.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+
+
+
+[backend\config]
+- drivingProfiles.json
+  Inhalt:
+{
+    "Profile1": {
+      "speed": 100,
+      "acceleration": 50,
+      "positions": [0, 100, 200]
+    },
+    "Profile2": {
+      "speed": 80,
+      "acceleration": 40,
+      "positions": [0, 80, 160]
+    }
+  }
+  
+
+
+[backend\logs]
+
+[backend\routes]
+- motor.js
+  Inhalt:
+const express = require('express');
+const router = express.Router();
+const drivingProfiles = require('../config/drivingProfiles.json');
+const logger = require('../utils/logger');
+const { exec } = require('child_process');
+const path = require('path');
+
+// Helper function to run a Deditec command via the Java CLI.
+function runDeditecCommand(args, callback) {
+  const javaCmd = `java -cp ${path.join(__dirname, '..', 'DelibJava')} DelibJava.DeditecCLI ${args.join(' ')}`;
+  logger.info(`Executing Deditec command: ${javaCmd}`);
+  exec(javaCmd, (error, stdout, stderr) => {
+    if (error) {
+      logger.error(`Deditec command error: ${stderr}`);
+      return callback(error, null);
+    }
+    logger.info(`Deditec command stdout: ${stdout}`);
+    try {
+      const result = JSON.parse(stdout);
+      callback(null, result);
+    } catch (e) {
+      logger.error(`JSON parse error: ${e.message}`);
+      callback(e, null);
+    }
+  });
+}
+
+// Set a specific pin (output)
+router.post('/set-pin', (req, res) => {
+  const { pin, state } = req.body;
+  logger.info(`Received set-pin request: pin=${pin}, state=${state}`);
+  runDeditecCommand(['set-pin', pin.toString(), state.toString()], (err, result) => {
+    if (err) {
+      logger.error(`Error in set-pin: ${err}`);
+      return res.status(500).json({ error: 'Error setting pin' });
+    }
+    logger.info(`set-pin result: ${JSON.stringify(result)}`);
+    res.json(result);
+  });
+});
+
+// Get the output status of a specific pin
+router.get('/get-pin-output', (req, res) => {
+  const pin = req.query.pin;
+  logger.info(`Received get-pin-output request: pin=${pin}`);
+  runDeditecCommand(['get-pin-output', pin.toString()], (err, result) => {
+    if (err) {
+      logger.error(`Error in get-pin-output: ${err}`);
+      return res.status(500).json({ error: 'Error getting pin output status' });
+    }
+    logger.info(`get-pin-output result: ${JSON.stringify(result)}`);
+    res.json(result);
+  });
+});
+
+// Toggle a specific pin
+router.post('/toggle-pin', (req, res) => {
+  const { pin } = req.body;
+  logger.info(`Received toggle-pin request: pin=${pin}`);
+  runDeditecCommand(['toggle-pin', pin.toString()], (err, result) => {
+    if (err) {
+      logger.error(`Error in toggle-pin: ${err}`);
+      return res.status(500).json({ error: 'Error toggling pin' });
+    }
+    logger.info(`toggle-pin result: ${JSON.stringify(result)}`);
+    res.json(result);
+  });
+});
+
+// Get the input status of a specific pin
+router.get('/get-pin-input', (req, res) => {
+  const pin = req.query.pin;
+  logger.info(`Received get-pin-input request: pin=${pin}`);
+  runDeditecCommand(['get-pin-input', pin.toString()], (err, result) => {
+    if (err) {
+      logger.error(`Error in get-pin-input: ${err}`);
+      return res.status(500).json({ error: 'Error getting pin input status' });
+    }
+    logger.info(`get-pin-input result: ${JSON.stringify(result)}`);
+    res.json(result);
+  });
+});
+
+// --- New stub endpoints for additional features ---
+
+// Emergency Stop
+router.post('/emergency-stop', (req, res) => {
+  logger.info(`Received emergency-stop request`);
+  runDeditecCommand(['emergency-stop'], (err, result) => {
+    if (err) {
+      logger.error(`Error in emergency-stop: ${err}`);
+      return res.status(500).json({ error: 'Error executing emergency stop' });
+    }
+    logger.info(`emergency-stop result: ${JSON.stringify(result)}`);
+    res.json(result);
+  });
+});
+
+// Toggle all outputs
+router.post('/toggle-all', (req, res) => {
+  logger.info(`Received toggle-all request`);
+  runDeditecCommand(['toggle-all'], (err, result) => {
+    if (err) {
+      logger.error(`Error in toggle-all: ${err}`);
+      return res.status(500).json({ error: 'Error toggling all outputs' });
+    }
+    logger.info(`toggle-all result: ${JSON.stringify(result)}`);
+    res.json(result);
+  });
+});
+
+// Turn all outputs off
+router.post('/all-off', (req, res) => {
+  logger.info(`Received all-off request`);
+  runDeditecCommand(['all-off'], (err, result) => {
+    if (err) {
+      logger.error(`Error in all-off: ${err}`);
+      return res.status(500).json({ error: 'Error turning all outputs off' });
+    }
+    logger.info(`all-off result: ${JSON.stringify(result)}`);
+    res.json(result);
+  });
+});
+
+// Start a driving profile (stub)
+router.post('/start-profile', (req, res) => {
+  const { profileName } = req.body;
+  logger.info(`Received start-profile request: profileName=${profileName}`);
+  // Here you could add logic to apply parameters from drivingProfiles.json.
+  res.json({ status: `Profile ${profileName} started (stub)` });
+});
+
+module.exports = router;
+
+
+
+[backend\utils]
+- logger.js
+  Inhalt:
+const fs = require('fs');
+const path = require('path');
+
+const logFilePath = path.join(__dirname, '..', 'logs', 'backend.log');
+
+function logToFile(level, msg) {
+    const logMessage = `${new Date().toISOString()} [${level}] ${msg}\n`;
+    fs.appendFileSync(logFilePath, logMessage);
+}
+
+const logger = {
+    info: msg => {
+        console.log(`INFO: ${msg}`);
+        logToFile('INFO', msg);
+    },
+    error: msg => {
+        console.error(`ERROR: ${msg}`);
+        logToFile('ERROR', msg);
+    },
+    warn: msg => {
+        console.warn(`WARN: ${msg}`);
+        logToFile('WARN', msg);
+    }
+};
+
+module.exports = logger;
 
 
 
 [DelibJava]
+- DeditecCLI.java
+  Inhalt:
+package DelibJava;
+
+public class DeditecCLI {
+    public static void main(String[] args) {
+        if (args.length < 1) {
+            System.out.println("{\"error\":\"No command provided\"}");
+            return;
+        }
+        String command = args[0];
+        String output = "";
+        try {
+            // Bestehende Befehle
+            if ("set-output".equals(command)) {
+                if (args.length != 3) {
+                    output = "{\"error\":\"Usage: set-output <channel> <state>\"}";
+                } else {
+                    int channel = Integer.parseInt(args[1]);
+                    int state = Integer.parseInt(args[2]);
+                    DeditecController controller = new DeditecController();
+                    controller.setDigitalOutput(channel, state);
+                    output = "{\"status\":\"Output " + channel + " set to " + state + "\"}";
+                    controller.close();
+                }
+            } else if ("toggle-all".equals(command)) {
+                DeditecController controller = new DeditecController();
+                controller.toggleAllOutputs();
+                output = "{\"status\":\"All outputs toggled\"}";
+                controller.close();
+            } else if ("all-off".equals(command)) {
+                DeditecController controller = new DeditecController();
+                controller.allOutputsOff();
+                output = "{\"status\":\"All outputs turned off\"}";
+                controller.close();
+            } else if ("get-inputs".equals(command)) {
+                DeditecController controller = new DeditecController();
+                int[] inputs = controller.getAllDigitalInputs();
+                StringBuilder sb = new StringBuilder();
+                sb.append("[");
+                for (int i = 0; i < inputs.length; i++) {
+                    sb.append(inputs[i]);
+                    if (i < inputs.length - 1) sb.append(",");
+                }
+                sb.append("]");
+                output = "{\"inputs\":" + sb.toString() + "}";
+                controller.close();
+            }
+            // Neue Befehle über den PinController
+            else if ("set-pin".equals(command)) {
+                if (args.length != 3) {
+                    output = "{\"error\":\"Usage: set-pin <pin> <state>\"}";
+                } else {
+                    int pin = Integer.parseInt(args[1]);
+                    int state = Integer.parseInt(args[2]);
+                    DeditecPinController pinController = new DeditecPinController();
+                    switch(pin) {
+                        case 0: pinController.setPin0Output(state); break;
+                        case 1: pinController.setPin1Output(state); break;
+                        case 2: pinController.setPin2Output(state); break;
+                        case 3: pinController.setPin3Output(state); break;
+                        case 4: pinController.setPin4Output(state); break;
+                        case 5: pinController.setPin5Output(state); break;
+                        case 6: pinController.setPin6Output(state); break;
+                        case 7: pinController.setPin7Output(state); break;
+                        case 8: pinController.setPin8Output(state); break;
+                        case 9: pinController.setPin9Output(state); break;
+                        case 10: pinController.setPin10Output(state); break;
+                        case 11: pinController.setPin11Output(state); break;
+                        case 12: pinController.setPin12Output(state); break;
+                        case 13: pinController.setPin13Output(state); break;
+                        case 14: pinController.setPin14Output(state); break;
+                        case 15: pinController.setPin15Output(state); break;
+                        default: output = "{\"error\":\"Invalid pin\"}"; break;
+                    }
+                    if (output.isEmpty()) {
+                        output = "{\"status\":\"Pin " + pin + " set to " + state + "\"}";
+                    }
+                    pinController.close();
+                }
+            } else if ("get-pin-output".equals(command)) {
+                if (args.length != 2) {
+                    output = "{\"error\":\"Usage: get-pin-output <pin>\"}";
+                } else {
+                    int pin = Integer.parseInt(args[1]);
+                    DeditecPinController pinController = new DeditecPinController();
+                    int state = -1;
+                    switch(pin) {
+                        case 0: state = pinController.getPin0OutputStatus(); break;
+                        case 1: state = pinController.getPin1OutputStatus(); break;
+                        case 2: state = pinController.getPin2OutputStatus(); break;
+                        case 3: state = pinController.getPin3OutputStatus(); break;
+                        case 4: state = pinController.getPin4OutputStatus(); break;
+                        case 5: state = pinController.getPin5OutputStatus(); break;
+                        case 6: state = pinController.getPin6OutputStatus(); break;
+                        case 7: state = pinController.getPin7OutputStatus(); break;
+                        case 8: state = pinController.getPin8OutputStatus(); break;
+                        case 9: state = pinController.getPin9OutputStatus(); break;
+                        case 10: state = pinController.getPin10OutputStatus(); break;
+                        case 11: state = pinController.getPin11OutputStatus(); break;
+                        case 12: state = pinController.getPin12OutputStatus(); break;
+                        case 13: state = pinController.getPin13OutputStatus(); break;
+                        case 14: state = pinController.getPin14OutputStatus(); break;
+                        case 15: state = pinController.getPin15OutputStatus(); break;
+                        default: output = "{\"error\":\"Invalid pin\"}"; break;
+                    }
+                    if (output.isEmpty()) {
+                        output = "{\"status\":\"Pin " + pin + " output status: " + state + "\"}";
+                    }
+                    pinController.close();
+                }
+            } else if ("toggle-pin".equals(command)) {
+                if (args.length != 2) {
+                    output = "{\"error\":\"Usage: toggle-pin <pin>\"}";
+                } else {
+                    int pin = Integer.parseInt(args[1]);
+                    DeditecPinController pinController = new DeditecPinController();
+                    switch(pin) {
+                        case 0: pinController.togglePin0Output(); break;
+                        case 1: pinController.togglePin1Output(); break;
+                        case 2: pinController.togglePin2Output(); break;
+                        case 3: pinController.togglePin3Output(); break;
+                        case 4: pinController.togglePin4Output(); break;
+                        case 5: pinController.togglePin5Output(); break;
+                        case 6: pinController.togglePin6Output(); break;
+                        case 7: pinController.togglePin7Output(); break;
+                        case 8: pinController.togglePin8Output(); break;
+                        case 9: pinController.togglePin9Output(); break;
+                        case 10: pinController.togglePin10Output(); break;
+                        case 11: pinController.togglePin11Output(); break;
+                        case 12: pinController.togglePin12Output(); break;
+                        case 13: pinController.togglePin13Output(); break;
+                        case 14: pinController.togglePin14Output(); break;
+                        case 15: pinController.togglePin15Output(); break;
+                        default: output = "{\"error\":\"Invalid pin\"}"; break;
+                    }
+                    if (output.isEmpty()) {
+                        output = "{\"status\":\"Pin " + args[1] + " toggled\"}";
+                    }
+                    pinController.close();
+                }
+            } else if ("get-pin-input".equals(command)) {
+                if (args.length != 2) {
+                    output = "{\"error\":\"Usage: get-pin-input <pin>\"}";
+                } else {
+                    int pin = Integer.parseInt(args[1]);
+                    DeditecPinController pinController = new DeditecPinController();
+                    int state = -1;
+                    switch(pin) {
+                        case 0: state = pinController.getPin0InputStatus(); break;
+                        case 1: state = pinController.getPin1InputStatus(); break;
+                        case 2: state = pinController.getPin2InputStatus(); break;
+                        case 3: state = pinController.getPin3InputStatus(); break;
+                        case 4: state = pinController.getPin4InputStatus(); break;
+                        case 5: state = pinController.getPin5InputStatus(); break;
+                        case 6: state = pinController.getPin6InputStatus(); break;
+                        case 7: state = pinController.getPin7InputStatus(); break;
+                        case 8: state = pinController.getPin8InputStatus(); break;
+                        case 9: state = pinController.getPin9InputStatus(); break;
+                        case 10: state = pinController.getPin10InputStatus(); break;
+                        case 11: state = pinController.getPin11InputStatus(); break;
+                        case 12: state = pinController.getPin12InputStatus(); break;
+                        case 13: state = pinController.getPin13InputStatus(); break;
+                        case 14: state = pinController.getPin14InputStatus(); break;
+                        case 15: state = pinController.getPin15InputStatus(); break;
+                        default: output = "{\"error\":\"Invalid pin\"}"; break;
+                    }
+                    if (output.isEmpty()) {
+                        output = "{\"status\":\"Pin " + pin + " input status: " + state + "\"}";
+                    }
+                    pinController.close();
+                }
+            } else {
+                output = "{\"error\":\"Unknown command: " + command + "\"}";
+            }
+        } catch (Exception e) {
+            output = "{\"error\":\"" + e.getMessage() + "\"}";
+        }
+        System.out.println(output);
+    }
+}
+
+
+- DeditecController.java
+  Inhalt:
+package DelibJava;
+
+public class DeditecController {
+    private int handle;
+
+    public DeditecController() throws Exception {
+        // Modul öffnen (Beispiel: BS-USB2, Modul-ID 0x002D)
+        handle = DelibJNI64.DapiOpenModule(0x002D, 0);
+        if (handle <= 0) {
+            throw new Exception("Modul konnte nicht geöffnet werden, Fehlercode: " + DelibJNI64.DapiGetLastError());
+        }
+    }
+
+    public void close() {
+        DelibJNI64.DapiCloseModule(handle);
+    }
+
+    // Liefert die Anzahl der Digitalausgänge zurück
+    public int getDigitalOutputConfig() throws Exception {
+        int config = DelibJNI64.DapiSpecialCommand(
+            handle,
+            DelibJNI64.DAPI_SPECIAL_CMD_GET_MODULE_CONFIG,
+            DelibJNI64.DAPI_SPECIAL_GET_MODULE_CONFIG_PAR_DO, 0, 0);
+        return config;
+    }
+
+    // Setzt einen digitalen Ausgang auf den gewünschten Zustand (0 = aus, 1 = an)
+    public void setDigitalOutput(int channel, int state) throws Exception {
+        DelibJNI64.DapiDOSet1(handle, channel, state);
+        int error = DelibJNI64.DapiGetLastError();
+        if (error != 0) {
+            throw new Exception("Fehler beim Setzen von Output " + channel + ": Fehlercode " + error);
+        }
+    }
+
+    // Liest den aktuellen Zustand eines digitalen Ausgangs aus
+    public int getDigitalOutput(int channel) throws Exception {
+        return DelibJNI64.DapiDOReadback32(handle, channel);
+    }
+
+    // Schaltet einen Ausgang um (an -> aus oder aus -> an)
+    public void toggleDigitalOutput(int channel) throws Exception {
+        int currentState = getDigitalOutput(channel);
+        int newState = (currentState == 0) ? 1 : 0;
+        setDigitalOutput(channel, newState);
+    }
+
+    // Schaltet alle Ausgänge (von 0 bis config-1) um
+    public void toggleAllOutputs() throws Exception {
+        int config = getDigitalOutputConfig();
+        for (int channel = 0; channel < config; channel++) {
+            toggleDigitalOutput(channel);
+        }
+    }
+
+    // Schaltet alle Ausgänge aus
+    public void allOutputsOff() throws Exception {
+        int config = getDigitalOutputConfig();
+        for (int channel = 0; channel < config; channel++) {
+            setDigitalOutput(channel, 0);
+        }
+    }
+
+    // Liest einen digitalen Eingang aus
+    public int getDigitalInput(int channel) throws Exception {
+        return DelibJNI64.DapiDIGet1(handle, channel);
+    }
+
+    // Liest alle digitalen Eingänge (hier beispielhaft 16 Kanäle) aus
+    public int[] getAllDigitalInputs() throws Exception {
+        int[] inputs = new int[16];
+        for (int channel = 0; channel < inputs.length; channel++) {
+            inputs[channel] = getDigitalInput(channel);
+        }
+        return inputs;
+    }
+}
+
+
+- DeditecPinController.java
+  Inhalt:
+package DelibJava;
+
+public class DeditecPinController {
+
+    private DeditecController controller;
+
+    public DeditecPinController() throws Exception {
+        controller = new DeditecController();
+    }
+
+    // === Digital Outputs (Pins 0 bis 15) ===
+    public void setPin0Output(int state) throws Exception { controller.setDigitalOutput(0, state); }
+    public int getPin0OutputStatus() throws Exception { return controller.getDigitalOutput(0); }
+    public void togglePin0Output() throws Exception { controller.toggleDigitalOutput(0); }
+
+    public void setPin1Output(int state) throws Exception { controller.setDigitalOutput(1, state); }
+    public int getPin1OutputStatus() throws Exception { return controller.getDigitalOutput(1); }
+    public void togglePin1Output() throws Exception { controller.toggleDigitalOutput(1); }
+
+    public void setPin2Output(int state) throws Exception { controller.setDigitalOutput(2, state); }
+    public int getPin2OutputStatus() throws Exception { return controller.getDigitalOutput(2); }
+    public void togglePin2Output() throws Exception { controller.toggleDigitalOutput(2); }
+
+    public void setPin3Output(int state) throws Exception { controller.setDigitalOutput(3, state); }
+    public int getPin3OutputStatus() throws Exception { return controller.getDigitalOutput(3); }
+    public void togglePin3Output() throws Exception { controller.toggleDigitalOutput(3); }
+
+    public void setPin4Output(int state) throws Exception { controller.setDigitalOutput(4, state); }
+    public int getPin4OutputStatus() throws Exception { return controller.getDigitalOutput(4); }
+    public void togglePin4Output() throws Exception { controller.toggleDigitalOutput(4); }
+
+    public void setPin5Output(int state) throws Exception { controller.setDigitalOutput(5, state); }
+    public int getPin5OutputStatus() throws Exception { return controller.getDigitalOutput(5); }
+    public void togglePin5Output() throws Exception { controller.toggleDigitalOutput(5); }
+
+    public void setPin6Output(int state) throws Exception { controller.setDigitalOutput(6, state); }
+    public int getPin6OutputStatus() throws Exception { return controller.getDigitalOutput(6); }
+    public void togglePin6Output() throws Exception { controller.toggleDigitalOutput(6); }
+
+    public void setPin7Output(int state) throws Exception { controller.setDigitalOutput(7, state); }
+    public int getPin7OutputStatus() throws Exception { return controller.getDigitalOutput(7); }
+    public void togglePin7Output() throws Exception { controller.toggleDigitalOutput(7); }
+
+    public void setPin8Output(int state) throws Exception { controller.setDigitalOutput(8, state); }
+    public int getPin8OutputStatus() throws Exception { return controller.getDigitalOutput(8); }
+    public void togglePin8Output() throws Exception { controller.toggleDigitalOutput(8); }
+
+    public void setPin9Output(int state) throws Exception { controller.setDigitalOutput(9, state); }
+    public int getPin9OutputStatus() throws Exception { return controller.getDigitalOutput(9); }
+    public void togglePin9Output() throws Exception { controller.toggleDigitalOutput(9); }
+
+    public void setPin10Output(int state) throws Exception { controller.setDigitalOutput(10, state); }
+    public int getPin10OutputStatus() throws Exception { return controller.getDigitalOutput(10); }
+    public void togglePin10Output() throws Exception { controller.toggleDigitalOutput(10); }
+
+    public void setPin11Output(int state) throws Exception { controller.setDigitalOutput(11, state); }
+    public int getPin11OutputStatus() throws Exception { return controller.getDigitalOutput(11); }
+    public void togglePin11Output() throws Exception { controller.toggleDigitalOutput(11); }
+
+    public void setPin12Output(int state) throws Exception { controller.setDigitalOutput(12, state); }
+    public int getPin12OutputStatus() throws Exception { return controller.getDigitalOutput(12); }
+    public void togglePin12Output() throws Exception { controller.toggleDigitalOutput(12); }
+
+    public void setPin13Output(int state) throws Exception { controller.setDigitalOutput(13, state); }
+    public int getPin13OutputStatus() throws Exception { return controller.getDigitalOutput(13); }
+    public void togglePin13Output() throws Exception { controller.toggleDigitalOutput(13); }
+
+    public void setPin14Output(int state) throws Exception { controller.setDigitalOutput(14, state); }
+    public int getPin14OutputStatus() throws Exception { return controller.getDigitalOutput(14); }
+    public void togglePin14Output() throws Exception { controller.toggleDigitalOutput(14); }
+
+    public void setPin15Output(int state) throws Exception { controller.setDigitalOutput(15, state); }
+    public int getPin15OutputStatus() throws Exception { return controller.getDigitalOutput(15); }
+    public void togglePin15Output() throws Exception { controller.toggleDigitalOutput(15); }
+
+    // === Digital Inputs (Pins 0 bis 15) ===
+    public int getPin0InputStatus() throws Exception { return controller.getDigitalInput(0); }
+    public int getPin1InputStatus() throws Exception { return controller.getDigitalInput(1); }
+    public int getPin2InputStatus() throws Exception { return controller.getDigitalInput(2); }
+    public int getPin3InputStatus() throws Exception { return controller.getDigitalInput(3); }
+    public int getPin4InputStatus() throws Exception { return controller.getDigitalInput(4); }
+    public int getPin5InputStatus() throws Exception { return controller.getDigitalInput(5); }
+    public int getPin6InputStatus() throws Exception { return controller.getDigitalInput(6); }
+    public int getPin7InputStatus() throws Exception { return controller.getDigitalInput(7); }
+    public int getPin8InputStatus() throws Exception { return controller.getDigitalInput(8); }
+    public int getPin9InputStatus() throws Exception { return controller.getDigitalInput(9); }
+    public int getPin10InputStatus() throws Exception { return controller.getDigitalInput(10); }
+    public int getPin11InputStatus() throws Exception { return controller.getDigitalInput(11); }
+    public int getPin12InputStatus() throws Exception { return controller.getDigitalInput(12); }
+    public int getPin13InputStatus() throws Exception { return controller.getDigitalInput(13); }
+    public int getPin14InputStatus() throws Exception { return controller.getDigitalInput(14); }
+    public int getPin15InputStatus() throws Exception { return controller.getDigitalInput(15); }
+
+    public void close() {
+        controller.close();
+    }
+}
+
+
+- delib64.dll (Binärdatei, übersprungen)
+- DelibErrorCodes.java
+  Inhalt:
+package DelibJava;
+
+//***********************************************************************************
+//***********************************************************************************
+//***********************************************************************************
+//***********************************************************************************
+//***********************************************************************************
+//
+//
+//
+//  DelibErrorCodes.java
+//  project: DELIB
+//
+//
+//  (c) DEDITEC GmbH, 2009-2016
+//  web: http://www.deditec.de/
+//  mail: vertrieb@deditec.de
+//
+//
+//***********************************************************************************
+//***********************************************************************************
+//***********************************************************************************
+//***********************************************************************************
+//***********************************************************************************
+
+public class DelibErrorCodes
+{
+    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
+    //  = 0x0000        
+    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
+    //
+    public static final int DAPI_ERR_NONE                                       = 0;
+    //
+    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
+    //  = 0x0100        Allgemeine Error Codes
+    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
+    //
+    public static final int DAPI_ERR_GEN_CLASS                                  = 0x0100;
+    //
+    public static final int DAPI_ERR_GEN_MALLOC_ERROR                           = 0x0101;
+    public static final int DAPI_ERR_GEN_BUFFER_TOO_SMALL_ERROR                 = 0x0102;
+    public static final int DAPI_ERR_GEN_ERROR_WITH_TEXT                        = 0x0103;
+    //
+    public static final int DAPI_ERR_GEN_SOCKET_ERROR                           = 0x0110;
+    public static final int DAPI_ERR_GEN_BINDING_ERROR                          = 0x0111;
+    public static final int DAPI_ERR_GEN_SIG_HANDLER_ERROR                      = 0x0112;
+    //
+    public static final int DAPI_ERR_GEN_UNKNOWN_ENCRYPTION_TYPE                = 0x0120;
+    public static final int DAPI_ERR_GEN_ENCRYPTION_ERROR                       = 0x0121;
+    //
+    public static final int DAPI_ERR_GEN_ILLEGAL_MODULE_ID                      = 0x0130;
+    public static final int DAPI_ERR_GEN_ILLEGAL_MODULE_NR                      = 0x0131;
+    public static final int DAPI_ERR_GEN_ILLEGAL_HANDLE                         = 0x0132;
+    //
+    public static final int DAPI_ERR_GEN_NOT_SUPPORTED_MODE                     = 0x0140;
+    public static final int DAPI_ERR_GEN_NOT_SUPPORTED_IO_TYPE                  = 0x0141;
+    public static final int DAPI_ERR_GEN_NOT_SUPPORTED_CHANNEL                  = 0x0142;
+    public static final int DAPI_ERR_GEN_NOT_SUPPORTED_SW_FEATURE               = 0x0143;
+    public static final int DAPI_ERR_GEN_NOT_SUPPORTED_FUNCTION                 = 0x0144;
+    //
+    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
+    //  = 0x0200    Communication Errors
+    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
+    //
+    public static final int DAPI_ERR_COM_CLASS                                  = 0x0200;
+    //
+    public static final int DAPI_ERR_COM_CONN_COULD_NOT_BE_ESTABLISHED          = 0x0201;
+    public static final int DAPI_ERR_COM_DEVICE_DID_NOT_ANSWER                  = 0x0202;
+    //
+    public static final int DAPI_ERR_COM_HANDLE_INVALID                         = 0x0210;
+    public static final int DAPI_ERR_COM_DELIB_ID_INVALID                       = 0x0211;
+    public static final int DAPI_ERR_COM_FT_HANDLE_INVALID                      = 0x0212;
+    public static final int DAPI_ERR_COM_FT_ERROR                               = 0x0213;
+    //
+    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
+    //  = 0x0300    Device Errors
+    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
+    //
+    public static final int DAPI_ERR_DEV_CLASS                                  = 0x0300;
+    //
+    public static final int DAPI_ERR_DEV_PKT_CMD_ILLEGAL                        = 0x0301;       //ehemals ERR_EXECUTE_RS232_RX_COMMAND_ILLEGAL_COMMAND     1
+    public static final int DAPI_ERR_DEV_PKT_DATA_LENGTH_ERROR                  = 0x0302;       //ehemals ERR_EXECUTE_RS232_RX_COMMAND_WRONG_DATA_LENGTH   2
+    public static final int DAPI_ERR_DEV_PKT_DATA_CHECKSUM_ERROR                = 0x0303;       //ehemals ERR_EXECUTE_RS232_RX_COMMAND_WRONG_CHECKSUM      3
+    public static final int DAPI_ERR_DEV_PKT_ADDR_NOT_FOR_ME                    = 0x0304;       //ehemals ERR_EXECUTE_RS232_RX_COMMAND_NOT_FOR_ME          4
+    public static final int DAPI_ERR_DEV_PKT_OTHER_ERROR                        = 0x0305;       //ehemals ERR_EXECUTE_RS232_RX_COMMAND_NOT_FOR_ME          4
+    //
+    public static final int DAPI_ERR_DEV_PACKET_CMD_NOT_SUPPORTED               = 0x0310;       // BC-CMD or TCP-CMD
+    public static final int DAPI_ERR_DEV_PACKET_ID_1_NOT_ALLOWED                = 0x0311;       // TCP
+    public static final int DAPI_ERR_DEV_PACKET_ID_1_NOT_SUPPORTED              = 0x0312;       // TCP
+    public static final int DAPI_ERR_DEV_PACKET_HEADER_NOT_OK                   = 0x0313;       // TCP
+    public static final int DAPI_ERR_DEV_PACKET_SUBCMD_NOT_SUPPORTED            = 0x0314;       // TCP
+    //
+    public static final int DAPI_ERR_DEV_IO_ADDR_ILLEGAL                        = 0x0331;       // dev_io
+    public static final int DAPI_ERR_DEV_IO_RD_WR_ERROR                         = 0x0332;       // dev_io
+    public static final int DAPI_ERR_DEV_IO_SUB_ADDR_ILLEGAL                    = 0x0333;       // dev_io
+    public static final int DAPI_ERR_DEV_IO_OTHER_ERROR                         = 0x0337;       // dev_io (7. von 7 mglichen Errors)
+    public static final int DAPI_ERR_DEV_IO_HTML_ACCESS_DENIED                  = 0x0338;
+    //
+    public static final int DAPI_ERR_DEV_FS_INTERNAL_TEXT_BUFFER_TOO_SMALL      = 0x0345;
+    public static final int DAPI_ERR_DEV_FS_RW_OFFSET_OUT_OF_SCOPE              = 0x0346;
+    public static final int DAPI_ERR_DEV_FS_RW_LENGTH_OUT_OF_SCOPE              = 0x0347;
+    public static final int DAPI_ERR_DEV_FS_BUFFER_TOO_SMALL                    = 0x0349;
+    //
+    public static final int DAPI_ERR_DEV_FILE_WRITE_ERROR                       = 0x0370;
+    //
+    public static final int DAPI_ERR_DEV_CONFIG_WRITE_PROTECTED                 = 0x0380;
+    public static final int DAPI_ERR_DEV_CONFIG_KEY_NOT_PRESSED                 = 0x0381;
+    public static final int DAPI_ERR_DEV_CONFIG_READ_ERROR                      = 0x0382;
+    public static final int DAPI_ERR_DEV_CONFIG_WRITE_ERROR                     = 0x0383;
+    public static final int DAPI_ERR_DEV_CONFIG_UPDATE_ERROR                    = 0x0384;       // Broadcast
+    public static final int DAPI_ERR_DEV_CONFIG_PARAM_ONLY_ONE_TIME_WRITEABLE   = 0x0385;       // ETH
+    public static final int DAPI_ERR_DEV_CONFIG_PARAM_IS_READ_ONLY              = 0x0386;
+    public static final int DAPI_ERR_DEV_CONFIG_PARAM_IS_WRITE_ONLY             = 0x0387;
+    public static final int DAPI_ERR_DEV_CONFIG_WRITE_PROTECTED_SW              = 0x0388;
+    public static final int DAPI_ERR_DEV_CONFIG_FS_INVALID                      = 0x0389;
+    public static final int DAPI_ERR_DEV_CONFIG_FS_DIR_NOT_FOUND                = 0x038a;
+    public static final int DAPI_ERR_DEV_CONFIG_FS_DIR_ALREADY_EXIST            = 0x038b;
+    public static final int DAPI_ERR_DEV_CONFIG_FS_IS_FULL                      = 0x038c;
+    public static final int DAPI_ERR_DEV_CONFIG_FS_DIR_DATA_INVALID             = 0x038d;
+    //
+    public static final int DAPI_ERR_DEV_ENCRYPTED_HEADER_NOT_OK                = 0x0391;
+    public static final int DAPI_ERR_DEV_ENCRYPTION_ERROR                       = 0x0392;       // Encryption
+    public static final int DAPI_ERR_DEV_ENCRYPTION_TEMP_ADMIN_MODE_NOT_ALLOWED = 0x0393;
+    public static final int DAPI_ERR_DEV_ENCRYPTION_NO_ADMIN_RIGHTS             = 0x0394;
+    //
+    public static final int DAPI_ERR_DEV_EXECUTE_CMD_ERROR                      = 0x03FF;
+    //
+    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
+}
+
+
+- DelibJNI64.dll (Binärdatei, übersprungen)
 - DelibJNI64.java
   Inhalt:
 package DelibJava;
@@ -814,153 +1587,6 @@ public class UsbModuleTest {
 }
 
 
-- DelibErrorCodes.java
-  Inhalt:
-package DelibJava;
-
-//***********************************************************************************
-//***********************************************************************************
-//***********************************************************************************
-//***********************************************************************************
-//***********************************************************************************
-//
-//
-//
-//  DelibErrorCodes.java
-//  project: DELIB
-//
-//
-//  (c) DEDITEC GmbH, 2009-2016
-//  web: http://www.deditec.de/
-//  mail: vertrieb@deditec.de
-//
-//
-//***********************************************************************************
-//***********************************************************************************
-//***********************************************************************************
-//***********************************************************************************
-//***********************************************************************************
-
-public class DelibErrorCodes
-{
-    // ----------------------------------------------------------------------------
-    // ----------------------------------------------------------------------------
-    //  = 0x0000        
-    // ----------------------------------------------------------------------------
-    // ----------------------------------------------------------------------------
-    //
-    public static final int DAPI_ERR_NONE                                       = 0;
-    //
-    // ----------------------------------------------------------------------------
-    // ----------------------------------------------------------------------------
-    //  = 0x0100        Allgemeine Error Codes
-    // ----------------------------------------------------------------------------
-    // ----------------------------------------------------------------------------
-    //
-    public static final int DAPI_ERR_GEN_CLASS                                  = 0x0100;
-    //
-    public static final int DAPI_ERR_GEN_MALLOC_ERROR                           = 0x0101;
-    public static final int DAPI_ERR_GEN_BUFFER_TOO_SMALL_ERROR                 = 0x0102;
-    public static final int DAPI_ERR_GEN_ERROR_WITH_TEXT                        = 0x0103;
-    //
-    public static final int DAPI_ERR_GEN_SOCKET_ERROR                           = 0x0110;
-    public static final int DAPI_ERR_GEN_BINDING_ERROR                          = 0x0111;
-    public static final int DAPI_ERR_GEN_SIG_HANDLER_ERROR                      = 0x0112;
-    //
-    public static final int DAPI_ERR_GEN_UNKNOWN_ENCRYPTION_TYPE                = 0x0120;
-    public static final int DAPI_ERR_GEN_ENCRYPTION_ERROR                       = 0x0121;
-    //
-    public static final int DAPI_ERR_GEN_ILLEGAL_MODULE_ID                      = 0x0130;
-    public static final int DAPI_ERR_GEN_ILLEGAL_MODULE_NR                      = 0x0131;
-    public static final int DAPI_ERR_GEN_ILLEGAL_HANDLE                         = 0x0132;
-    //
-    public static final int DAPI_ERR_GEN_NOT_SUPPORTED_MODE                     = 0x0140;
-    public static final int DAPI_ERR_GEN_NOT_SUPPORTED_IO_TYPE                  = 0x0141;
-    public static final int DAPI_ERR_GEN_NOT_SUPPORTED_CHANNEL                  = 0x0142;
-    public static final int DAPI_ERR_GEN_NOT_SUPPORTED_SW_FEATURE               = 0x0143;
-    public static final int DAPI_ERR_GEN_NOT_SUPPORTED_FUNCTION                 = 0x0144;
-    //
-    // ----------------------------------------------------------------------------
-    // ----------------------------------------------------------------------------
-    //  = 0x0200    Communication Errors
-    // ----------------------------------------------------------------------------
-    // ----------------------------------------------------------------------------
-    //
-    public static final int DAPI_ERR_COM_CLASS                                  = 0x0200;
-    //
-    public static final int DAPI_ERR_COM_CONN_COULD_NOT_BE_ESTABLISHED          = 0x0201;
-    public static final int DAPI_ERR_COM_DEVICE_DID_NOT_ANSWER                  = 0x0202;
-    //
-    public static final int DAPI_ERR_COM_HANDLE_INVALID                         = 0x0210;
-    public static final int DAPI_ERR_COM_DELIB_ID_INVALID                       = 0x0211;
-    public static final int DAPI_ERR_COM_FT_HANDLE_INVALID                      = 0x0212;
-    public static final int DAPI_ERR_COM_FT_ERROR                               = 0x0213;
-    //
-    // ----------------------------------------------------------------------------
-    // ----------------------------------------------------------------------------
-    //  = 0x0300    Device Errors
-    // ----------------------------------------------------------------------------
-    // ----------------------------------------------------------------------------
-    //
-    public static final int DAPI_ERR_DEV_CLASS                                  = 0x0300;
-    //
-    public static final int DAPI_ERR_DEV_PKT_CMD_ILLEGAL                        = 0x0301;       //ehemals ERR_EXECUTE_RS232_RX_COMMAND_ILLEGAL_COMMAND     1
-    public static final int DAPI_ERR_DEV_PKT_DATA_LENGTH_ERROR                  = 0x0302;       //ehemals ERR_EXECUTE_RS232_RX_COMMAND_WRONG_DATA_LENGTH   2
-    public static final int DAPI_ERR_DEV_PKT_DATA_CHECKSUM_ERROR                = 0x0303;       //ehemals ERR_EXECUTE_RS232_RX_COMMAND_WRONG_CHECKSUM      3
-    public static final int DAPI_ERR_DEV_PKT_ADDR_NOT_FOR_ME                    = 0x0304;       //ehemals ERR_EXECUTE_RS232_RX_COMMAND_NOT_FOR_ME          4
-    public static final int DAPI_ERR_DEV_PKT_OTHER_ERROR                        = 0x0305;       //ehemals ERR_EXECUTE_RS232_RX_COMMAND_NOT_FOR_ME          4
-    //
-    public static final int DAPI_ERR_DEV_PACKET_CMD_NOT_SUPPORTED               = 0x0310;       // BC-CMD or TCP-CMD
-    public static final int DAPI_ERR_DEV_PACKET_ID_1_NOT_ALLOWED                = 0x0311;       // TCP
-    public static final int DAPI_ERR_DEV_PACKET_ID_1_NOT_SUPPORTED              = 0x0312;       // TCP
-    public static final int DAPI_ERR_DEV_PACKET_HEADER_NOT_OK                   = 0x0313;       // TCP
-    public static final int DAPI_ERR_DEV_PACKET_SUBCMD_NOT_SUPPORTED            = 0x0314;       // TCP
-    //
-    public static final int DAPI_ERR_DEV_IO_ADDR_ILLEGAL                        = 0x0331;       // dev_io
-    public static final int DAPI_ERR_DEV_IO_RD_WR_ERROR                         = 0x0332;       // dev_io
-    public static final int DAPI_ERR_DEV_IO_SUB_ADDR_ILLEGAL                    = 0x0333;       // dev_io
-    public static final int DAPI_ERR_DEV_IO_OTHER_ERROR                         = 0x0337;       // dev_io (7. von 7 mglichen Errors)
-    public static final int DAPI_ERR_DEV_IO_HTML_ACCESS_DENIED                  = 0x0338;
-    //
-    public static final int DAPI_ERR_DEV_FS_INTERNAL_TEXT_BUFFER_TOO_SMALL      = 0x0345;
-    public static final int DAPI_ERR_DEV_FS_RW_OFFSET_OUT_OF_SCOPE              = 0x0346;
-    public static final int DAPI_ERR_DEV_FS_RW_LENGTH_OUT_OF_SCOPE              = 0x0347;
-    public static final int DAPI_ERR_DEV_FS_BUFFER_TOO_SMALL                    = 0x0349;
-    //
-    public static final int DAPI_ERR_DEV_FILE_WRITE_ERROR                       = 0x0370;
-    //
-    public static final int DAPI_ERR_DEV_CONFIG_WRITE_PROTECTED                 = 0x0380;
-    public static final int DAPI_ERR_DEV_CONFIG_KEY_NOT_PRESSED                 = 0x0381;
-    public static final int DAPI_ERR_DEV_CONFIG_READ_ERROR                      = 0x0382;
-    public static final int DAPI_ERR_DEV_CONFIG_WRITE_ERROR                     = 0x0383;
-    public static final int DAPI_ERR_DEV_CONFIG_UPDATE_ERROR                    = 0x0384;       // Broadcast
-    public static final int DAPI_ERR_DEV_CONFIG_PARAM_ONLY_ONE_TIME_WRITEABLE   = 0x0385;       // ETH
-    public static final int DAPI_ERR_DEV_CONFIG_PARAM_IS_READ_ONLY              = 0x0386;
-    public static final int DAPI_ERR_DEV_CONFIG_PARAM_IS_WRITE_ONLY             = 0x0387;
-    public static final int DAPI_ERR_DEV_CONFIG_WRITE_PROTECTED_SW              = 0x0388;
-    public static final int DAPI_ERR_DEV_CONFIG_FS_INVALID                      = 0x0389;
-    public static final int DAPI_ERR_DEV_CONFIG_FS_DIR_NOT_FOUND                = 0x038a;
-    public static final int DAPI_ERR_DEV_CONFIG_FS_DIR_ALREADY_EXIST            = 0x038b;
-    public static final int DAPI_ERR_DEV_CONFIG_FS_IS_FULL                      = 0x038c;
-    public static final int DAPI_ERR_DEV_CONFIG_FS_DIR_DATA_INVALID             = 0x038d;
-    //
-    public static final int DAPI_ERR_DEV_ENCRYPTED_HEADER_NOT_OK                = 0x0391;
-    public static final int DAPI_ERR_DEV_ENCRYPTION_ERROR                       = 0x0392;       // Encryption
-    public static final int DAPI_ERR_DEV_ENCRYPTION_TEMP_ADMIN_MODE_NOT_ALLOWED = 0x0393;
-    public static final int DAPI_ERR_DEV_ENCRYPTION_NO_ADMIN_RIGHTS             = 0x0394;
-    //
-    public static final int DAPI_ERR_DEV_EXECUTE_CMD_ERROR                      = 0x03FF;
-    //
-    // ----------------------------------------------------------------------------
-    // ----------------------------------------------------------------------------
-    // ----------------------------------------------------------------------------
-    // ----------------------------------------------------------------------------
-    // ----------------------------------------------------------------------------
-}
-
-
-- delib64.dll (Binärdatei, übersprungen)
-- DelibJNI64.dll (Binärdatei, übersprungen)
 
 [frontend]
 - package.json
@@ -979,6 +1605,7 @@ public class DelibErrorCodes
     "start": "react-scripts start",
     "build": "react-scripts build"
   },
+  "proxy": "http://localhost:3000",
   "browserslist": {
     "production": [
       ">0.2%",
@@ -995,7 +1622,7 @@ public class DelibErrorCodes
 
 
 
-[frontend/public]
+[frontend\public]
 - index.html
   Inhalt:
 <!DOCTYPE html>
@@ -1012,20 +1639,27 @@ public class DelibErrorCodes
 
 
 
-[frontend/src]
-- index.js
+[frontend\src]
+- App.js
   Inhalt:
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import './index.css';
+import MotorControl from './components/MotorControl';
+import EmergencyStop from './components/EmergencyStop';
+import StatusDisplay from './components/StatusDisplay';
+import PinLayout from './components/PinLayout';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+function App() {
+  return (
+    <div className="App">
+      <h1>Motorsteuerung für dryve 16 D1</h1>
+      <MotorControl />
+      <StatusDisplay />
+      <PinLayout />
+    </div>
+  );
+}
+
+export default App;
 
 
 - index.css
@@ -1044,256 +1678,24 @@ body {
   }
   
 
-- App.js
+- index.js
   Inhalt:
 import React from 'react';
-import MotorControl from './components/MotorControl';
-import EmergencyStop from './components/EmergencyStop';
-import StatusDisplay from './components/StatusDisplay';
-import PinLayout from './components/PinLayout';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import './index.css';
 
-function App() {
-  return (
-    <div className="App">
-      <h1>Motorsteuerung für dryve 16 D1</h1>
-      <MotorControl />
-      <EmergencyStop />
-      <StatusDisplay />
-      <PinLayout />
-    </div>
-  );
-}
-
-export default App;
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 
 
 
-[frontend/src/components]
+[frontend\src\components]
 - EmergencyStop.js
-  Inhalt:
-import React from 'react';
-import axios from 'axios';
-
-const EmergencyStop = () => {
-  const handleEmergencyStop = async () => {
-    try {
-      const response = await axios.post('/api/motor/emergency-stop');
-      console.log(response.data);
-    } catch (error) {
-      console.error('Fehler beim Not-Aus', error);
-    }
-  };
-
-  return (
-    <div>
-      <h2>Not-Aus</h2>
-      <button style={{ backgroundColor: 'red', color: 'white' }} onClick={handleEmergencyStop}>
-        Not-Aus
-      </button>
-    </div>
-  );
-};
-
-export default EmergencyStop;
-
-
-- PinLayout.js
-  Inhalt:
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-
-// Outputs-Daten
-const outputsData = [
-    // Dryve D1 Outputs (0-7)
-    { id: 0, label: "DI1 - Referenzfahrt", group: "dryve" },
-    { id: 1, label: "DI4 - Tippen links", group: "dryve" },
-    { id: 2, label: "DI5 - Tippen rechts", group: "dryve" },
-    { id: 3, label: "DI6 - Start/Teach", group: "dryve" },
-    { id: 4, label: "DI7 - Freigabe", group: "dryve" },
-    { id: 5, label: "DI8 - Endlagenschalter positiv", group: "dryve" },
-    { id: 6, label: "DI9 - Endlagenschalter negativ", group: "dryve" },
-    { id: 7, label: "DI10 - Stopp/Reset", group: "dryve" },
-    // Schrauber Outputs (8-12)
-    { id: 8, label: "Programm Auswahl 1", group: "schrauber" },
-    { id: 9, label: "Programm Auswahl 2", group: "schrauber" },
-    { id: 10, label: "STOPMOTOR", group: "schrauber" },
-    { id: 11, label: "START", group: "schrauber" },
-    { id: 12, label: "IN ANG", group: "schrauber" },
-    { id: 13, label: "IN RST", group: "schrauber" },
-    // Druckluft Outputs (14-15)
-    { id: 14, label: "Greifer", group: "druckluft" },
-    { id: 15, label: "Magnetheber an", group: "druckluft" },
-];
-
-// Inputs-Daten
-const inputsData = [
-    // Dryve D1 Inputs (0-2)
-    { id: 0, label: "DI1 - Referenzfahrt", group: "dryve" },
-    { id: 1, label: "DI4 - Tippen links", group: "dryve" },
-    { id: 2, label: "DI5 - Tippen rechts", group: "dryve" },
-    // Schrauber Inputs (3-5)
-    { id: 3, label: "37 - STOP", group: "schrauber" },
-    { id: 4, label: "39 - END PR", group: "schrauber" },
-    { id: 5, label: "42 - MOTOR ON", group: "schrauber" },
-    // Druckluft Inputs (6-10)
-    { id: 6, label: "Greifer Endschalter positiv", group: "druckluft" },
-    { id: 7, label: "Greifer Endschalter negativ", group: "druckluft" },
-    { id: 8, label: "Magnetheber Endschalter positiv", group: "druckluft" },
-    { id: 9, label: "Magnetheber Endschalter negativ", group: "druckluft" },
-    { id: 10, label: "Näherungsschalter Greifer", group: "druckluft" },
-    // Unbeschriftete Inputs (11-15)
-    { id: 11, label: "-", group: "none" },
-    { id: 12, label: "-", group: "none" },
-    { id: 13, label: "-", group: "none" },
-    { id: 14, label: "-", group: "none" },
-    { id: 15, label: "-", group: "none" }
-];
-
-const PinLayout = () => {
-    const [inputs, setInputs] = useState(Array(16).fill(false));
-    const [outputs, setOutputs] = useState(Array(16).fill(false));
-
-    // WebSocket für Echtzeit-Updates der Inputs
-    useEffect(() => {
-        const ws = new WebSocket('ws://localhost:3000');
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.type === 'inputStatus') {
-                setInputs(data.states);
-            }
-        };
-        return () => ws.close();
-    }, []);
-
-    // Funktion zum Umschalten der Outputs
-    const toggleOutput = async (index) => {
-        const newState = !outputs[index];
-        const newOutputs = [...outputs];
-        newOutputs[index] = newState;
-        setOutputs(newOutputs);
-
-        try {
-            await axios.post('/api/motor/set-output', { pin: index, state: newState });
-        } catch (error) {
-            console.error('Fehler beim Setzen des Outputs:', error);
-        }
-    };
-
-    // Funktion zum Umschalten aller Outputs (für Testzwecke)
-    const toggleAllOutputs = () => {
-        setOutputs(outputs.map(state => !state));
-    };
-
-    // Stil für Statusanzeige (grün = An, rot = Aus)
-    const getIndicatorStyle = (state) => ({
-        width: '20px',
-        height: '20px',
-        borderRadius: '50%',
-        backgroundColor: state ? 'green' : 'red',
-        display: 'inline-block',
-        marginRight: '10px'
-    });
-
-    // Farbkodierung nach Gruppe
-    const getRowStyle = (group) => {
-        switch (group) {
-            case "dryve":
-                return { backgroundColor: '#cce5ff' }; // Hellblau für Dryve D1
-            case "schrauber":
-                return { backgroundColor: '#ccffcc' }; // Hellgrün für Schrauber
-            case "druckluft":
-                return { backgroundColor: '#ffe6cc' }; // Hellorange für Druckluft
-            default:
-                return { backgroundColor: '#ffffff' }; // Weiß für unbeschriftet
-        }
-    };
-
-    // Flexbox-Styling für nebeneinanderliegende Tabellen
-    const containerStyle = {
-        display: 'flex',
-        justifyContent: 'space-between',
-        gap: '20px',
-        marginTop: '20px'
-    };
-
-    const tableWrapperStyle = {
-        flex: '1',
-        minWidth: '0' // Verhindert Überlauf
-    };
-
-    return (
-        <div>
-            <h2>Pin-Layout</h2>
-            <div style={containerStyle}>
-
-                {/* Outputs Tabelle */}
-                <div style={tableWrapperStyle}>
-                    <h3>Ausgänge (Outputs)</h3>
-                    <table border="1" cellPadding="5" style={{ width: '100%' }}>
-                        <thead>
-                            <tr>
-                                <th>Pin Nr.</th>
-                                <th>Funktion</th>
-                                <th>Status</th>
-                                <th>Toggle</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {outputsData.map((output) => (
-                                <tr key={output.id} style={getRowStyle(output.group)}>
-                                    <td>{output.id}</td>
-                                    <td>{output.label}</td>
-                                    <td>
-                                        <span style={getIndicatorStyle(outputs[output.id])}></span>
-                                        {outputs[output.id] ? 'An' : 'Aus'}
-                                    </td>
-                                    <td>
-                                        <button onClick={() => toggleOutput(output.id)}>Toggle</button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Inputs Tabelle */}
-                <div style={tableWrapperStyle}>
-                    <h3>Eingänge (Inputs)</h3>
-                    <table border="1" cellPadding="5" style={{ width: '100%' }}>
-                        <thead>
-                            <tr>
-                                <th>Pin Nr.</th>
-                                <th>Funktion</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {inputsData.map((input) => (
-                                <tr key={input.id} style={getRowStyle(input.group)}>
-                                    <td>{input.id}</td>
-                                    <td>{input.label}</td>
-                                    <td>
-                                        <span style={getIndicatorStyle(inputs[input.id])}></span>
-                                        {inputs[input.id] ? 'An' : 'Aus'}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {/* Test-Button zum Umschalten aller Outputs */}
-            <button onClick={toggleAllOutputs} style={{ marginTop: '20px', padding: '10px 20px' }}>
-                Test: Alle Outputs umschalten
-            </button>
-        </div>
-    );
-};
-
-export default PinLayout;
-
-- StatusDisplay.js
   Inhalt:
 import React from 'react';
 import axios from 'axios';
@@ -1356,130 +1758,241 @@ const MotorControl = () => {
 export default MotorControl;
 
 
-
-[backend]
-- server.js
+- PinLayout.js
   Inhalt:
-const express = require('express');
-const bodyParser = require('body-parser');
-const motorRoutes = require('./routes/motor');
-const WebSocket = require('ws');
-const http = require('http');
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const app = express();
-app.use(bodyParser.json());
-app.use('/api/motor', motorRoutes);
+const outputsData = [
+    // Dryve D1 Outputs (0-7)
+    { id: 0, label: "DI1 - Referenzfahrt", group: "dryve" },
+    { id: 1, label: "DI4 - Tippen links", group: "dryve" },
+    { id: 2, label: "DI5 - Tippen rechts", group: "dryve" },
+    { id: 3, label: "DI6 - Start/Teach", group: "dryve" },
+    { id: 4, label: "DI7 - Freigabe", group: "dryve" },
+    { id: 5, label: "DI8 - Endlagenschalter positiv", group: "dryve" },
+    { id: 6, label: "DI9 - Endlagenschalter negativ", group: "dryve" },
+    { id: 7, label: "DI10 - Stopp/Reset", group: "dryve" },
+    // Schrauber Outputs (8-12)
+    { id: 8, label: "Programm Auswahl 1", group: "schrauber" },
+    { id: 9, label: "Programm Auswahl 2", group: "schrauber" },
+    { id: 10, label: "STOPMOTOR", group: "schrauber" },
+    { id: 11, label: "START", group: "schrauber" },
+    { id: 12, label: "IN ANG", group: "schrauber" },
+    { id: 13, label: "IN RST", group: "schrauber" },
+    // Druckluft Outputs (14-15)
+    { id: 14, label: "Greifer", group: "druckluft" },
+    { id: 15, label: "Magnetheber an", group: "druckluft" },
+];
 
-// HTTP-Server erstellen
-const server = http.createServer(app);
+const inputsData = [
+    // Dryve D1 Inputs (0-2)
+    { id: 0, label: "DI1 - Referenzfahrt", group: "dryve" },
+    { id: 1, label: "DI4 - Tippen links", group: "dryve" },
+    { id: 2, label: "DI5 - Tippen rechts", group: "dryve" },
+    // Schrauber Inputs (3-5)
+    { id: 3, label: "37 - STOP", group: "schrauber" },
+    { id: 4, label: "39 - END PR", group: "schrauber" },
+    { id: 5, label: "42 - MOTOR ON", group: "schrauber" },
+    // Druckluft Inputs (6-10)
+    { id: 6, label: "Greifer Endschalter positiv", group: "druckluft" },
+    { id: 7, label: "Greifer Endschalter negativ", group: "druckluft" },
+    { id: 8, label: "Magnetheber Endschalter positiv", group: "druckluft" },
+    { id: 9, label: "Magnetheber Endschalter negativ", group: "druckluft" },
+    { id: 10, label: "Näherungsschalter Greifer", group: "druckluft" },
+    // Unbeschriftete Inputs (11-15)
+    { id: 11, label: "-", group: "none" },
+    { id: 12, label: "-", group: "none" },
+    { id: 13, label: "-", group: "none" },
+    { id: 14, label: "-", group: "none" },
+    { id: 15, label: "-", group: "none" }
+];
 
-// WebSocket-Server für Echtzeit-Updates
-const wss = new WebSocket.Server({ server });
-wss.on('connection', ws => {
-  console.log('Client via WebSocket verbunden');
-  ws.on('message', message => {
-    console.log(`Nachricht erhalten: ${message}`);
-    // Weitere Verarbeitung falls erforderlich
-  });
-});
+const PinLayout = () => {
+    const [inputs, setInputs] = useState(Array(16).fill(false));
+    const [outputs, setOutputs] = useState(Array(16).fill(false));
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server läuft auf Port ${PORT}`);
-});
+    // WebSocket für Echtzeit-Updates der Inputs
+    useEffect(() => {
+        const ws = new WebSocket('ws://localhost:3000');
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'inputStatus') {
+                setInputs(data.states);
+            }
+        };
+        return () => ws.close();
+    }, []);
+
+    // Umschalten eines einzelnen Outputs über den neuen toggle-pin Endpunkt
+    const toggleOutput = async (index) => {
+        try {
+            await axios.post('/api/motor/toggle-pin', { pin: index });
+            // Aktualisiere den lokalen Zustand
+            const newOutputs = [...outputs];
+            newOutputs[index] = !outputs[index];
+            setOutputs(newOutputs);
+        } catch (error) {
+            console.error('Fehler beim Umschalten des Outputs:', error);
+        }
+    };
+
+    // Umschalten aller Outputs (Backend übernimmt die Logik)
+    const toggleAllOutputs = async () => {
+        try {
+            const response = await axios.post('/api/motor/toggle-all');
+            console.log(response.data);
+        } catch (error) {
+            console.error('Fehler beim Umschalten aller Outputs:', error);
+        }
+    };
+
+    // Ausschalten aller Outputs
+    const allOutputsOff = async () => {
+        try {
+            const response = await axios.post('/api/motor/all-off');
+            console.log(response.data);
+        } catch (error) {
+            console.error('Fehler beim Ausschalten aller Outputs:', error);
+        }
+    };
+
+    const getIndicatorStyle = (state) => ({
+        width: '20px',
+        height: '20px',
+        borderRadius: '50%',
+        backgroundColor: state ? 'green' : 'red',
+        display: 'inline-block',
+        marginRight: '10px'
+    });
+
+    const getRowStyle = (group) => {
+        switch (group) {
+            case "dryve":
+                return { backgroundColor: '#cce5ff' };
+            case "schrauber":
+                return { backgroundColor: '#ccffcc' };
+            case "druckluft":
+                return { backgroundColor: '#ffe6cc' };
+            default:
+                return { backgroundColor: '#ffffff' };
+        }
+    };
+
+    const containerStyle = {
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '20px',
+        marginTop: '20px'
+    };
+
+    const tableWrapperStyle = {
+        flex: '1',
+        minWidth: '0'
+    };
+
+    return (
+        <div>
+            <h2>Pin-Layout</h2>
+            <div style={containerStyle}>
+                <div style={tableWrapperStyle}>
+                    <h3>Ausgänge (Outputs)</h3>
+                    <table border="1" cellPadding="5" style={{ width: '100%' }}>
+                        <thead>
+                            <tr>
+                                <th>Pin Nr.</th>
+                                <th>Funktion</th>
+                                <th>Status</th>
+                                <th>Toggle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {outputsData.map((output) => (
+                                <tr key={output.id} style={getRowStyle(output.group)}>
+                                    <td>{output.id}</td>
+                                    <td>{output.label}</td>
+                                    <td>
+                                        <span style={getIndicatorStyle(outputs[output.id])}></span>
+                                        {outputs[output.id] ? 'An' : 'Aus'}
+                                    </td>
+                                    <td>
+                                        <button onClick={() => toggleOutput(output.id)}>Toggle</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <button onClick={toggleAllOutputs} style={{ marginRight: '10px' }}>
+                        Alles umschalten
+                    </button>
+                    <button onClick={allOutputsOff}>
+                        Alle aus
+                    </button>
+                </div>
+                <div style={tableWrapperStyle}>
+                    <h3>Eingänge (Inputs)</h3>
+                    <table border="1" cellPadding="5" style={{ width: '100%' }}>
+                        <thead>
+                            <tr>
+                                <th>Pin Nr.</th>
+                                <th>Funktion</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {inputsData.map((input) => (
+                                <tr key={input.id} style={getRowStyle(input.group)}>
+                                    <td>{input.id}</td>
+                                    <td>{input.label}</td>
+                                    <td>
+                                        <span style={getIndicatorStyle(inputs[input.id])}></span>
+                                        {inputs[input.id] ? 'An' : 'Aus'}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default PinLayout;
 
 
-- package.json
+- StatusDisplay.js
   Inhalt:
-{
-  "name": "motor-control-backend",
-  "version": "1.0.0",
-  "description": "Backend for dryve 16 D1 motor control",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "ws": "^8.13.0",
-    "body-parser": "^1.20.1"
-  }
-}
+import React from 'react';
+import axios from 'axios';
 
-
-
-[backend/config]
-- drivingProfiles.json
-  Inhalt:
-{
-    "Profile1": {
-      "speed": 100,
-      "acceleration": 50,
-      "positions": [0, 100, 200]
-    },
-    "Profile2": {
-      "speed": 80,
-      "acceleration": 40,
-      "positions": [0, 80, 160]
+const EmergencyStop = () => {
+  const handleEmergencyStop = async () => {
+    try {
+      const response = await axios.post('/api/motor/emergency-stop');
+      console.log(response.data);
+    } catch (error) {
+      console.error('Fehler beim Not-Aus', error);
     }
-  }
-  
-
-
-[backend/utils]
-- logger.js
-  Inhalt:
-const logger = {
-    info: msg => console.log(`INFO: ${msg}`),
-    error: msg => console.error(`ERROR: ${msg}`),
-    warn: msg => console.warn(`WARN: ${msg}`)
   };
-  
-  module.exports = logger;
-  
 
+  return (
+    <div>
+      <h2>Not-Aus</h2>
+      <button style={{ backgroundColor: 'red', color: 'white' }} onClick={handleEmergencyStop}>
+        Not-Aus
+      </button>
+    </div>
+  );
+};
 
-[backend/routes]
-- motor.js
-  Inhalt:
-const express = require('express');
-const router = express.Router();
-const drivingProfiles = require('../config/drivingProfiles.json');
-const logger = require('../utils/logger');
-
-// Starten eines Fahrprofils
-router.post('/start-profile', (req, res) => {
-  const { profileName } = req.body;
-  const profile = drivingProfiles[profileName];
-  if (!profile) {
-    logger.error(`Fahrprofil ${profileName} nicht gefunden`);
-    return res.status(404).json({ error: 'Fahrprofil nicht gefunden' });
-  }
-  logger.info(`Fahrprofil ${profileName} wird gestartet`);
-  // Logik zur Motorsteuerung (z.B. über deditec API) implementieren
-  res.json({ status: 'Fahrprofil gestartet', profile });
-});
-
-// Manuelle Steuerung
-router.post('/manual-control', (req, res) => {
-  const { command } = req.body;
-  logger.info(`Manuelle Steuerung: ${command}`);
-  res.json({ status: 'Befehl ausgeführt', command });
-});
-
-// Not-Aus
-router.post('/emergency-stop', (req, res) => {
-  logger.warn('Not-Aus aktiviert');
-  res.json({ status: 'Not-Aus aktiviert' });
-});
-
-module.exports = router;
+export default EmergencyStop;
 
 
 
 [java_jni_digital_input]
 
-[java_jni_digital_input/bin]
+[java_jni_digital_input\bin]
 
-[java_jni_digital_input/bin/DelibJava]
+[java_jni_digital_input\bin\DelibJava]
 

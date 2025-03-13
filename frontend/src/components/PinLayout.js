@@ -62,17 +62,16 @@ const PinLayout = () => {
         return () => ws.close();
     }, []);
 
-    // Umschalten eines einzelnen Outputs
+    // Umschalten eines einzelnen Outputs über den neuen toggle-pin Endpunkt
     const toggleOutput = async (index) => {
-        const newState = !outputs[index];
-        const newOutputs = [...outputs];
-        newOutputs[index] = newState;
-        setOutputs(newOutputs);
-
         try {
-            await axios.post('/api/motor/set-output', { pin: index, state: newState ? 1 : 0 });
+            await axios.post('/api/motor/toggle-pin', { pin: index });
+            // Aktualisiere den lokalen Zustand
+            const newOutputs = [...outputs];
+            newOutputs[index] = !outputs[index];
+            setOutputs(newOutputs);
         } catch (error) {
-            console.error('Fehler beim Setzen des Outputs:', error);
+            console.error('Fehler beim Umschalten des Outputs:', error);
         }
     };
 

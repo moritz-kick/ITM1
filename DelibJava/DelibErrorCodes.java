@@ -101,7 +101,7 @@ public class DelibErrorCodes
     public static final int DAPI_ERR_DEV_IO_ADDR_ILLEGAL                        = 0x0331;       // dev_io
     public static final int DAPI_ERR_DEV_IO_RD_WR_ERROR                         = 0x0332;       // dev_io
     public static final int DAPI_ERR_DEV_IO_SUB_ADDR_ILLEGAL                    = 0x0333;       // dev_io
-    public static final int DAPI_ERR_DEV_IO_OTHER_ERROR                         = 0x0337;       // dev_io (7. von 7 möglichen Errors)
+    public static final int DAPI_ERR_DEV_IO_OTHER_ERROR                         = 0x0337;       // dev_io (7. von 7 mï¿½glichen Errors)
     public static final int DAPI_ERR_DEV_IO_HTML_ACCESS_DENIED                  = 0x0338;
     //
     public static final int DAPI_ERR_DEV_FS_INTERNAL_TEXT_BUFFER_TOO_SMALL      = 0x0345;

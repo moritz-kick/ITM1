@@ -1,7 +1,8 @@
+package DelibJava;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import DelibJava.DelibJNI64;
-import DelibJava.DelibErrorCodes;
+
 
 public class UsbModuleTest {
     public static void main(String[] args) {
